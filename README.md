@@ -1,5 +1,7 @@
 # Quadrex (pronounced KWA-deks)
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 A modern, user-friendly web application for personal financial management built with Flask and HTMX.
 
 ## Brand Story
@@ -165,7 +167,20 @@ flake8 .
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+This means you are free to:
+- Use this software for any purpose
+- Change the software to suit your needs
+- Share the software with others
+- Share the changes you make
+
+Under the following conditions:
+- If you modify and distribute this software, you must also make your source code available under the GPL
+- You must include the original copyright and license notices
+- You must state significant changes made to the software
+
+For more details, see the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
 
 ## Acknowledgments
 

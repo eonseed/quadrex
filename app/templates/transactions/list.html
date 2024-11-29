@@ -8,8 +8,8 @@
     <button 
         class="btn btn-primary gap-2"
         hx-get="{{ url_for('transactions.add') }}"
-        hx-target="body"
-        hx-swap="beforeend">
+        hx-target="#modal-content"
+        onclick="window.modal.showModal()">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
         </svg>
@@ -102,8 +102,8 @@
                                     class="btn btn-ghost btn-sm tooltip tooltip-left"
                                     data-tip="Edit"
                                     hx-get="{{ url_for('transactions.edit', id=transaction.id) }}"
-                                    hx-target="body"
-                                    hx-swap="beforeend">
+                                    hx-target="#modal-content"
+                                    onclick="window.modal.showModal()">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                     </svg>
@@ -137,11 +137,35 @@
 
 <!-- Modal Template -->
 <dialog id="modal" class="modal">
-    <div class="modal-box" id="modal-content">
+    <div class="modal-box w-11/12 max-w-2xl" id="modal-content">
         <!-- Content will be loaded here -->
     </div>
     <form method="dialog" class="modal-backdrop">
-        <button>close</button>
+        <button onclick="closeModal()">close</button>
     </form>
 </dialog>
+
+<script>
+    window.modal = document.getElementById('modal');
+    
+    function closeModal() {
+        window.modal.close();
+        const modalContent = document.getElementById('modal-content');
+        modalContent.innerHTML = ''; // Clear content when closing
+    }
+
+    // Close modal when clicking outside
+    window.modal.addEventListener('click', function(event) {
+        if (event.target === this) {
+            closeModal();
+        }
+    });
+
+    // Close modal when pressing ESC key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && window.modal.open) {
+            closeModal();
+        }
+    });
+</script>
 {% endblock %}

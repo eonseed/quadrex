@@ -76,4 +76,4 @@ wheels/
 .venv
 
 #Flask
-/instance
+instance/

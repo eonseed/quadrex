@@ -1,6 +1,15 @@
-# Budget Tracker
+# Quadrex (pronounced KWA-deks)
 
-A modern, user-friendly web application for personal budget management built with Flask and HTMX.
+A modern, user-friendly web application for personal financial management built with Flask and HTMX.
+
+## Brand Story
+
+The name "Quadrex" (KWA-deks) is inspired by the concept of "quad," representing four key aspects of personal finance:
+
+* **Four Basic Arithmetic Operations:** Addition, subtraction, multiplication, and division are the fundamental building blocks of any financial tracking system. Quadrex helps you manage these operations on your income and expenses.
+* **Quarterly Financial Periods:** Many people and businesses organize their finances around quarters of the year (Q1, Q2, Q3, Q4). Quadrex can help you track and analyze your finances on a quarterly basis.
+
+The "-rex" suffix adds a sense of power and mastery, suggesting that users can take control of their finances with confidence. Together, Quadrex represents a powerful tool for mastering your financial journey through systematic organization and analysis.
 
 ## Features
 
@@ -43,7 +52,7 @@ A modern, user-friendly web application for personal budget management built wit
 ## Project Structure
 
 ```
-budget_tracker/
+quadrex/
 ├── app/
 │   ├── __init__.py          # App initialization and configuration
 │   ├── models.py            # Database models
@@ -66,7 +75,7 @@ budget_tracker/
 │       ├── base.html
 │       └── index.html
 ├── instance/              # Instance-specific files
-│   └── budget.db         # SQLite database
+│   └── quadrex.db        # SQLite database
 ├── migrations/           # Database migrations
 ├── tests/               # Test suite
 ├── .env                 # Environment variables
@@ -80,8 +89,8 @@ budget_tracker/
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/budget_tracker.git
-cd budget_tracker
+git clone https://github.com/yourusername/quadrex.git
+cd quadrex
 ```
 
 2. Create and activate virtual environment:

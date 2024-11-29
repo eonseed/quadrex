@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Summary Cards -->
+    <div class="stats shadow">
+        <div class="stat">
+            <div class="stat-title">Total Income</div>
+            <div class="stat-value text-success">{{ "${:,.2f}".format(total_income) }}</div>
+        </div>
+        <div class="stat">
+            <div class="stat-title">Total Expenses</div>
+            <div class="stat-value text-error">{{ "${:,.2f}".format(total_expenses) }}</div>
+        </div>
+        <div class="stat">
+            <div class="stat-title">Balance</div>
+            <div class="stat-value {{ 'text-success' if balance >= 0 else 'text-error' }}">
+                {{ "${:,.2f}".format(balance) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="grid grid-cols-1 gap-6">
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Recent Transactions</h2>
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ transaction.description }}</td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    {% if transaction.category.icon %}
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ transaction.category.icon }}"/>
+                                    </svg>
+                                    {% endif %}
+                                    {{ transaction.category.name }}
+                                </div>
+                            </td>
+                            <td class="{{ 'text-success' if transaction.type == 'income' else 'text-error' }}">
+                                {{ "${:,.2f}".format(transaction.amount) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-actions justify-end">
+                <a href="{{ url_for('transactions.list') }}" class="btn btn-primary">View All</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

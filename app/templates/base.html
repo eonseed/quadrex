@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - Budget Tracker</title>
+    <script src="https://unpkg.com/htmx.org@1.9.4"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.7.3/dist/full.css" rel="stylesheet" type="text/css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0EA5E9',  // sky-500
+                        'primary-focus': '#0284C7',  // sky-600
+                        'primary-content': '#F0F9FF',  // sky-50
+                        accent: '#14B8A6',  // teal-500
+                        'accent-focus': '#0D9488',  // teal-600
+                        'accent-content': '#F0FDFA',  // teal-50
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom focus styles for better accessibility */
+        .input:focus, .select:focus, .checkbox:focus, .btn:focus {
+            outline: 2px solid #0EA5E9;
+            outline-offset: 2px;
+        }
+        
+        /* Custom transitions */
+        .btn {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        /* Custom form styling */
+        .form-control {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .input, .select {
+            transition: border-color 0.2s ease-in-out;
+        }
+
+        /* Modal animations */
+        .modal {
+            transition: opacity 0.2s ease-in-out;
+        }
+        
+        .modal[open] {
+            opacity: 1;
+        }
+        
+        .modal:not([open]) {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .modal-box {
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        .modal[open] .modal-box {
+            transform: translateY(0);
+        }
+        
+        .modal:not([open]) .modal-box {
+            transform: translateY(-50px);
+        }
+        
+        .label-text {
+            font-weight: 500;
+        }
+        
+        .input-bordered:focus {
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 1px #0EA5E9;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-base-300">
+    <div class="drawer">
+        <input id="my-drawer-3" type="checkbox" class="drawer-toggle" /> 
+        <div class="drawer-content flex flex-col">
+            <!-- Navbar -->
+            <div class="w-full navbar bg-base-200 shadow-lg">
+                <div class="flex-none lg:hidden">
+                    <label for="my-drawer-3" class="btn btn-square btn-ghost">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </label>
+                </div> 
+                <div class="flex-1 px-2 mx-2">
+                    <a href="{{ url_for('main.index') }}" class="text-xl font-bold">Budget Tracker</a>
+                </div>
+                <div class="flex-none hidden lg:block">
+                    <ul class="menu menu-horizontal">
+                        {% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('main.index') }}" class="btn btn-ghost btn-sm">Dashboard</a></li>
+                            <li><a href="{{ url_for('transactions.list') }}" class="btn btn-ghost btn-sm">Transactions</a></li>
+                            <li><a href="{{ url_for('categories.list') }}" class="btn btn-ghost btn-sm">Categories</a></li>
+                            <li><a href="{{ url_for('auth.logout') }}" class="btn bg-red-600 hover:bg-red-700 text-white btn-sm" aria-label="Logout">Logout</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-sm">Login</a></li>
+                            <li><a href="{{ url_for('auth.register') }}" class="btn btn-accent btn-sm">Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="container mx-auto p-4 lg:p-8">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div role="alert" class="alert alert-{{ category }} shadow-lg mb-4 max-w-2xl mx-auto">
+                                <div>
+                                    {% if category == 'success' %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    {% else %}
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                    {% endif %}
+                                    <span>{{ message }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <div class="bg-base-200 rounded-box shadow-xl p-6 lg:p-8">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar Menu (Mobile) -->
+        <div class="drawer-side">
+            <label for="my-drawer-3" class="drawer-overlay"></label> 
+            <ul class="menu p-4 w-80 h-full bg-base-200">
+                {% if current_user.is_authenticated %}
+                    <li class="menu-title">
+                        <span>Navigation</span>
+                    </li>
+                    <li><a href="{{ url_for('main.index') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('transactions.list') }}">Transactions</a></li>
+                    <li><a href="{{ url_for('categories.list') }}">Categories</a></li>
+                    <li class="menu-title mt-4">
+                        <span>Account</span>
+                    </li>
+                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                    <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Global Modal -->
+    <dialog id="global-modal" class="modal">
+        <div class="modal-box">
+            <div id="modal-content">
+                <!-- Modal content will be loaded here -->
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <script>
+        // HTMX event handlers
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            if (evt.detail.target.id === 'modal-content') {
+                document.getElementById('global-modal').showModal();
+            }
+        });
+
+        document.body.addEventListener('htmx:beforeSwap', function(evt) {
+            if (evt.detail.target.id === 'transactions-grid' || evt.detail.target.id === 'categories-grid') {
+                document.getElementById('global-modal').close();
+            }
+        });
+    </script>
+</body>
+</html>

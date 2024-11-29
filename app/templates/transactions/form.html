@@ -1,0 +1,90 @@
+<div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">{% if transaction %}Edit{% else %}Add{% endif %} Transaction</h3>
+    
+    <form hx-{% if transaction %}put{% else %}post{% endif %}="{{ url_for('transactions.save_transaction', transaction_id=transaction.id if transaction else None) }}"
+          hx-target="#transactions-table"
+          hx-swap="outerHTML">
+        
+        <div class="form-control mb-4">
+            <label class="label">
+                <span class="label-text">Type</span>
+            </label>
+            <select name="type" class="select select-bordered w-full" required>
+                <option value="expense" {% if transaction and transaction.type == 'expense' %}selected{% endif %}>Expense</option>
+                <option value="income" {% if transaction and transaction.type == 'income' %}selected{% endif %}>Income</option>
+            </select>
+        </div>
+
+        <div class="form-control mb-4">
+            <label class="label">
+                <span class="label-text">Category</span>
+            </label>
+            <select name="category_id" class="select select-bordered w-full" required>
+                {% for category in categories %}
+                <option value="{{ category.id }}" 
+                        {% if transaction and transaction.category_id == category.id %}selected{% endif %}
+                        data-type="{{ category.type }}">
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-control mb-4">
+            <label class="label">
+                <span class="label-text">Amount</span>
+            </label>
+            <input type="number" 
+                   name="amount" 
+                   step="0.01" 
+                   class="input input-bordered w-full" 
+                   value="{{ "%.2f"|format(transaction.amount) if transaction else '' }}"
+                   required>
+        </div>
+
+        <div class="form-control mb-4">
+            <label class="label">
+                <span class="label-text">Description</span>
+            </label>
+            <input type="text" 
+                   name="description" 
+                   class="input input-bordered w-full" 
+                   value="{{ transaction.description if transaction else '' }}"
+                   required>
+        </div>
+
+        <div class="form-control mb-6">
+            <label class="label">
+                <span class="label-text">Date</span>
+            </label>
+            <input type="date" 
+                   name="date" 
+                   class="input input-bordered w-full" 
+                   value="{{ transaction.date.strftime('%Y-%m-%d') if transaction else '' }}"
+                   required>
+        </div>
+
+        <div class="modal-action">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn" onclick="dialog.close()">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Filter categories based on selected type
+    document.querySelector('select[name="type"]').addEventListener('change', function() {
+        const selectedType = this.value;
+        const categorySelect = document.querySelector('select[name="category_id"]');
+        
+        Array.from(categorySelect.options).forEach(option => {
+            const categoryType = option.getAttribute('data-type');
+            option.style.display = categoryType === selectedType ? '' : 'none';
+        });
+        
+        // Reset category selection if current selection doesn't match type
+        if (categorySelect.selectedOptions[0].getAttribute('data-type') !== selectedType) {
+            categorySelect.value = '';
+        }
+    });
+</script>

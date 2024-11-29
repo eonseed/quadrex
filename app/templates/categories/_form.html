@@ -1,0 +1,47 @@
+<form class="space-y-6" action="{{ action }}" method="POST">
+    <div>
+        <label for="name" class="label">
+            <span class="label-text">Name</span>
+        </label>
+        <input type="text" id="name" name="name" 
+               class="input input-bordered w-full" 
+               value="{{ category.name if category else '' }}"
+               required>
+    </div>
+
+    <div>
+        <label for="type" class="label">
+            <span class="label-text">Type</span>
+        </label>
+        <select id="type" name="type" class="select select-bordered w-full" required>
+            <option value="income" {% if category and category.type == 'income' %}selected{% endif %}>Income</option>
+            <option value="expense" {% if category and category.type == 'expense' %}selected{% endif %}>Expense</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="icon" class="label">
+            <span class="label-text">Icon</span>
+            <span class="label-text-alt">Optional</span>
+        </label>
+        <select id="icon" name="icon" class="select select-bordered w-full">
+            <option value="" {% if not category or not category.icon %}selected{% endif %}>Default</option>
+            <option value="M3 3h18a2 2 0 012 2v14a2 2 0 01-2 2H3a2 2 0 01-2-2V5a2 2 0 012-2z" {% if category and category.icon == 'M3 3h18a2 2 0 012 2v14a2 2 0 01-2 2H3a2 2 0 01-2-2V5a2 2 0 012-2z' %}selected{% endif %}>💰 Money</option>
+            <option value="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" {% if category and category.icon == 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' %}selected{% endif %}>🪙 Coin</option>
+            <option value="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" {% if category and category.icon == 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' %}selected{% endif %}>👤 Person</option>
+            <option value="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" {% if category and category.icon == 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' %}selected{% endif %}>🏠 Home</option>
+            <option value="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" {% if category and category.icon == 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' %}selected{% endif %}>📊 Chart</option>
+            <option value="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" {% if category and category.icon == 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' %}selected{% endif %}>⏰ Clock</option>
+            <option value="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" {% if category and category.icon == 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z' %}selected{% endif %}>⭐ Star</option>
+        </select>
+    </div>
+
+    <div class="modal-action">
+        <button type="submit" class="btn btn-primary">
+            {{ 'Update' if category else 'Add' }} Category
+        </button>
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('global-modal').close()">
+            Cancel
+        </button>
+    </div>
+</form>

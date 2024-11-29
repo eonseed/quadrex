@@ -1,0 +1,88 @@
+<div class="modal-box">
+    <form hx-post="{{ url_for('transactions.add' if not transaction else 'transactions.edit', id=transaction.id if transaction else None) }}"
+          hx-target="this"
+          hx-swap="outerHTML">
+        <h3 class="font-bold text-lg mb-4">
+            {% if transaction %}Edit{% else %}Add{% endif %} Transaction
+        </h3>
+
+        <div class="form-control mb-4">
+            <label class="label" for="description">
+                <span class="label-text">Description</span>
+            </label>
+            <input type="text" 
+                   id="description"
+                   name="description" 
+                   class="input input-bordered w-full" 
+                   value="{{ transaction.description if transaction else '' }}"
+                   required>
+        </div>
+
+        <div class="form-control mb-4">
+            <label class="label" for="amount">
+                <span class="label-text">Amount</span>
+            </label>
+            <input type="number" 
+                   id="amount"
+                   name="amount" 
+                   class="input input-bordered w-full" 
+                   step="0.01"
+                   value="{{ "%.2f"|format(transaction.amount) if transaction else '' }}"
+                   required>
+        </div>
+
+        <div class="form-control mb-4">
+            <label class="label" for="type">
+                <span class="label-text">Type</span>
+            </label>
+            <select id="type" 
+                    name="type" 
+                    class="select select-bordered w-full" 
+                    required>
+                <option value="">Select Type</option>
+                <option value="income" {% if transaction and transaction.type == 'income' %}selected{% endif %}>Income</option>
+                <option value="expense" {% if transaction and transaction.type == 'expense' %}selected{% endif %}>Expense</option>
+            </select>
+        </div>
+
+        <div class="form-control mb-4">
+            <label class="label" for="category">
+                <span class="label-text">Category</span>
+            </label>
+            <select id="category" 
+                    name="category_id" 
+                    class="select select-bordered w-full" 
+                    required>
+                <option value="">Select Category</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if transaction and transaction.category_id == category.id %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-control mb-6">
+            <label class="label" for="date">
+                <span class="label-text">Date</span>
+            </label>
+            <input type="date" 
+                   id="date"
+                   name="date" 
+                   class="input input-bordered w-full" 
+                   value="{{ transaction.date.strftime('%Y-%m-%d') if transaction else '' }}"
+                   required>
+        </div>
+
+        <div class="modal-action">
+            <button type="button" 
+                    class="btn btn-ghost"
+                    onclick="document.getElementById('global-modal').close()">
+                Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+                {% if transaction %}Update{% else %}Add{% endif %} Transaction
+            </button>
+        </div>
+    </form>
+</div>

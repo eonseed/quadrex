@@ -2,59 +2,146 @@
 
 {% block title %}Transactions{% endblock %}
 
-{% block content %}
-<div class="container mx-auto px-4 py-8">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-2xl font-bold">Transactions</h1>
-        <button 
-            class="btn btn-primary gap-2"
-            hx-get="{{ url_for('transactions.add') }}"
-            hx-target="#modal-content"
-            onclick="document.getElementById('global-modal').showModal()">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-            Add Transaction
-        </button>
-    </div>
+{% block app_content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Transactions</h1>
+    <button 
+        class="btn btn-primary gap-2"
+        hx-get="{{ url_for('transactions.add') }}"
+        hx-target="body"
+        hx-swap="beforeend">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        Add Transaction
+    </button>
+</div>
 
-    <!-- Filters -->
-    <div class="card bg-base-100 shadow mb-8">
-        <div class="card-body">
-            <form hx-get="{{ url_for('transactions.list') }}" 
-                  hx-target="#transactions-grid" 
-                  hx-trigger="change">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Type</span>
-                        </label>
-                        <select name="type" class="select select-bordered w-full">
-                            <option value="">All Types</option>
-                            <option value="income">Income</option>
-                            <option value="expense">Expense</option>
-                        </select>
-                    </div>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Category</span>
-                        </label>
-                        <select name="category_id" class="select select-bordered w-full">
-                            <option value="">All Categories</option>
-                            {% for category in categories %}
-                            <option value="{{ category.id }}">{{ category.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+<!-- Filters -->
+<div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+        <form hx-get="{{ url_for('transactions.list') }}" 
+              hx-target="#transactions-grid" 
+              hx-trigger="change">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Type</span>
+                    </label>
+                    <select name="type" class="select select-bordered w-full">
+                        <option value="">All Types</option>
+                        <option value="income" {% if request.args.get('type') == 'income' %}selected{% endif %}>Income</option>
+                        <option value="expense" {% if request.args.get('type') == 'expense' %}selected{% endif %}>Expense</option>
+                    </select>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Transactions Grid -->
-    <div id="transactions-grid">
-        {% include "transactions/_grid.html" %}
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Category</span>
+                    </label>
+                    <select name="category_id" class="select select-bordered w-full">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if request.args.get('category_id')|int == category.id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Date Range</span>
+                    </label>
+                    <select name="date_range" class="select select-bordered w-full">
+                        <option value="">All Time</option>
+                        <option value="today" {% if request.args.get('date_range') == 'today' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if request.args.get('date_range') == 'week' %}selected{% endif %}>This Week</option>
+                        <option value="month" {% if request.args.get('date_range') == 'month' %}selected{% endif %}>This Month</option>
+                        <option value="quarter" {% if request.args.get('date_range') == 'quarter' %}selected{% endif %}>This Quarter</option>
+                    </select>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
+
+<!-- Transactions Grid -->
+<div id="transactions-grid" class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <div class="overflow-x-auto">
+            <table class="table table-zebra">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ transaction.description }}</td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                {% if transaction.category.icon %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ transaction.category.icon }}"/>
+                                </svg>
+                                {% endif %}
+                                {{ transaction.category.name }}
+                            </div>
+                        </td>
+                        <td class="{{ 'text-success' if transaction.type == 'income' else 'text-error' }}">
+                            {{ "${:,.2f}".format(transaction.amount) }}
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <button 
+                                    class="btn btn-ghost btn-sm tooltip tooltip-left"
+                                    data-tip="Edit"
+                                    hx-get="{{ url_for('transactions.edit', id=transaction.id) }}"
+                                    hx-target="body"
+                                    hx-swap="beforeend">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                    </svg>
+                                </button>
+                                <button 
+                                    class="btn btn-ghost btn-sm tooltip tooltip-left text-error"
+                                    data-tip="Delete"
+                                    hx-delete="{{ url_for('transactions.delete', id=transaction.id) }}"
+                                    hx-confirm="Are you sure you want to delete this transaction?"
+                                    hx-target="closest tr"
+                                    hx-swap="outerHTML swap:1s">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-base-content/70">
+                            No transactions found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Template -->
+<dialog id="modal" class="modal">
+    <div class="modal-box" id="modal-content">
+        <!-- Content will be loaded here -->
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
 {% endblock %}

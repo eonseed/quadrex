@@ -87,58 +87,60 @@ quadrex/
 └── run.py             # Application entry point
 ```
 
-## Installation
+**## Installation**
 
 1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/quadrex.git
-cd quadrex
-```
 
-2. Create and activate virtual environment:
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
+    ```bash
+    git clone https://github.com/yourusername/quadrex.git
+    cd quadrex
+    ```
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+2. Install uv:
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    ```
+
+3. Install dependencies and synchronize project:
+    ```bash
+    uv sync
+    ```
 
 4. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
+
+    ```bash
+    cp .env.example .env
+    # Edit .env with your configuration
+    ```
 
 5. Initialize the database:
-```bash
-flask db upgrade
-```
+
+    ```bash
+    uv run flask db upgrade
+    ```
 
 6. Run the development server:
-```bash
-flask run
-```
 
-The application will be available at `http://localhost:5000`
+    ```bash
+    uv run flask run
+    ```
 
-## Development
+    The application will be available at `http://localhost:5000`
 
-### Database Migrations
+**## Development**
+
+**### Database Migrations**
 
 To create a new migration after model changes:
 
 ```bash
-flask db migrate -m "Description of changes"
-flask db upgrade
-```
+uv run flask db migrate -m "Description of changes"
+uv run flask db upgrade
 
 ### Running Tests
 
 ```bash
-python -m pytest
+uv run pytest
 ```
 
 ### Code Style
@@ -146,7 +148,7 @@ python -m pytest
 This project follows PEP 8 style guide. To check code style:
 
 ```bash
-flake8 .
+uv run ruff check
 ```
 
 ## Security

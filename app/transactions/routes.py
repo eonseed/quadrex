@@ -11,6 +11,7 @@ def list():
     # Get filter parameters
     type_filter = request.args.get('type')
     category_id = request.args.get('category_id')
+    date_range = request.args.get('date_range')
     
     # Build query
     query = Transaction.query.filter_by(user_id=current_user.id)
@@ -24,7 +25,7 @@ def list():
     categories = Category.query.filter_by(user_id=current_user.id).all()
     
     if request.headers.get('HX-Request'):
-        return render_template('transactions/_grid.html', 
+        return render_template('transactions/_table.html', 
                             transactions=transactions)
     
     return render_template('transactions/list.html',
@@ -50,7 +51,7 @@ def add():
             db.session.commit()
             
             transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
-            return render_template('transactions/_grid.html', transactions=transactions)
+            return render_template('transactions/_table.html', transactions=transactions)
         except Exception as e:
             db.session.rollback()
             flash('Error adding transaction: ' + str(e), 'error')
@@ -74,7 +75,7 @@ def edit(id):
             
             db.session.commit()
             transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
-            return render_template('transactions/_grid.html', transactions=transactions)
+            return render_template('transactions/_table.html', transactions=transactions)
         except Exception as e:
             db.session.rollback()
             flash('Error updating transaction: ' + str(e), 'error')
@@ -93,8 +94,8 @@ def delete(id):
     try:
         db.session.delete(transaction)
         db.session.commit()
-        return render_template('transactions/_grid.html',
-                            transactions=Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all())
+        transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
+        return render_template('transactions/_table.html', transactions=transactions)
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500

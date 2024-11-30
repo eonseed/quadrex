@@ -5,7 +5,7 @@ description = "A modern personal finance tracking application built with Flask a
 authors = [
     { name = "Vikrant Rathore", email = "vikrant@example.com" }
 ]
-license = { text = "MIT" }
+license = { text = "GPLv3" }
 readme = "README.md"
 requires-python = ">=3.12"
 keywords = ["finance", "budget", "tracking", "flask", "htmx"]
@@ -13,7 +13,7 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Framework :: Flask",
     "Intended Audience :: End Users/Desktop",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: GNU General Public License v3.0",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
     "Topic :: Office/Business :: Financial :: Accounting",
@@ -32,10 +32,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/quadrex"
-Documentation = "https://github.com/yourusername/quadrex#readme"
-Repository = "https://github.com/yourusername/quadrex.git"
-Issues = "https://github.com/yourusername/quadrex/issues"
+Homepage = "https://github.com/eonseed/quadrex"
+Documentation = "https://github.com/eonseed/quadrex#readme"
+Repository = "https://github.com/eonseed/quadrex.git"
+Issues = "https://github.com/eonseed/quadrex/issues"
 
 [build-system]
 requires = ["hatchling"]

@@ -1,7 +1,8 @@
 <div class="modal-box">
     <form hx-post="{{ url_for('transactions.add' if not transaction else 'transactions.edit', id=transaction.id if transaction else None) }}"
-          hx-target="this"
-          hx-swap="outerHTML">
+          hx-target="#transactions-grid"
+          hx-swap="outerHTML"
+          hx-on::after-request="document.getElementById('modal').close()">
         <h3 class="font-bold text-lg mb-4">
             {% if transaction %}Edit{% else %}Add{% endif %} Transaction
         </h3>
@@ -77,7 +78,10 @@
         <div class="modal-action">
             <button type="button" 
                     class="btn btn-ghost"
-                    onclick="document.getElementById('global-modal').close()">
+                    hx-get="{{ url_for('transactions.list') }}"
+                    hx-target="#transactions-grid"
+                    hx-trigger="click"
+                    hx-on::after-request="document.getElementById('modal').close()">
                 Cancel
             </button>
             <button type="submit" class="btn btn-primary">

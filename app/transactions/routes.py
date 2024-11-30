@@ -49,7 +49,8 @@ def add():
             db.session.add(transaction)
             db.session.commit()
             
-            return redirect(url_for('transactions.list'))
+            transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
+            return render_template('transactions/_grid.html', transactions=transactions)
         except Exception as e:
             db.session.rollback()
             flash('Error adding transaction: ' + str(e), 'error')

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to Quadrex{% endblock %}
+
+{% block content %}
+{% if not current_user.is_authenticated %}
+<div class="min-h-screen">
+    <div class="navbar bg-base-100">
+        <div class="flex-1">
+            <div class="flex items-center gap-2 px-4">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                    <svg class="w-6 h-6 text-primary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold">Quadrex</h1>
+                    <p class="text-xs text-base-content/60">(pronounced KWA-deks)</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex-none gap-2">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-ghost">Register</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a>
+        </div>
+    </div>
+
+    <div class="hero min-h-[calc(100vh-4rem)] bg-base-200">
+        <div class="hero-content flex-col lg:flex-row-reverse gap-8">
+            <div class="text-center lg:text-left lg:w-1/2">
+                <h1 class="text-5xl font-bold">Master Your Finances Today!</h1>
+                <p class="py-6">Quadrex is your personal finance companion for mastering the four pillars of financial management. Track expenses, analyze income, set budgets, and get insights with our powerful yet simple tools.</p>
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="card bg-base-100 shadow-sm">
+                        <div class="card-body p-4">
+                            <h3 class="font-semibold">Track Expenses</h3>
+                            <p class="text-sm text-base-content/70">Monitor your spending habits effortlessly</p>
+                        </div>
+                    </div>
+                    <div class="card bg-base-100 shadow-sm">
+                        <div class="card-body p-4">
+                            <h3 class="font-semibold">Analyze Income</h3>
+                            <p class="text-sm text-base-content/70">Keep track of all your revenue sources</p>
+                        </div>
+                    </div>
+                    <div class="card bg-base-100 shadow-sm">
+                        <div class="card-body p-4">
+                            <h3 class="font-semibold">Set Budgets</h3>
+                            <p class="text-sm text-base-content/70">Plan and stick to your financial goals</p>
+                        </div>
+                    </div>
+                    <div class="card bg-base-100 shadow-sm">
+                        <div class="card-body p-4">
+                            <h3 class="font-semibold">View Reports</h3>
+                            <p class="text-sm text-base-content/70">Get insights with detailed analytics</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+                <div class="card-body">
+                    <h2 class="card-title justify-center mb-4">Sign In</h2>
+                    <form method="POST" action="{{ url_for('auth.login') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Email</span>
+                            </label>
+                            {{ form.email(class="input input-bordered w-full", placeholder="Enter your email") }}
+                            {% for error in form.email.errors %}
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ error }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Password</span>
+                            </label>
+                            {{ form.password(class="input input-bordered w-full", placeholder="Enter your password") }}
+                            {% for error in form.password.errors %}
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ error }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-2">
+                                {{ form.remember_me(class="checkbox checkbox-primary") }}
+                                <span class="label-text">Remember me</span>
+                            </label>
+                        </div>
+
+                        <div class="form-control mt-6">
+                            <button type="submit" class="btn btn-primary">Sign In</button>
+                        </div>
+                    </form>
+
+                    <div class="divider">or</div>
+
+                    <div class="text-center">
+                        <p class="text-base-content/70">Don't have an account?</p>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-link">Create Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

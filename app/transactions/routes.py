@@ -1,4 +1,4 @@
-from flask import render_template, request, flash, redirect, url_for, jsonify
+from flask import render_template, request, flash, jsonify
 from flask_login import login_required, current_user
 from app import db
 from app.models import Transaction, Category
@@ -49,7 +49,8 @@ def add():
             db.session.add(transaction)
             db.session.commit()
             
-            return redirect(url_for('transactions.list'))
+            transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
+            return render_template('transactions/_grid.html', transactions=transactions)
         except Exception as e:
             db.session.rollback()
             flash('Error adding transaction: ' + str(e), 'error')
@@ -72,7 +73,8 @@ def edit(id):
             transaction.date = datetime.strptime(request.form['date'], '%Y-%m-%d')
             
             db.session.commit()
-            return redirect(url_for('transactions.list'))
+            transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.date.desc()).all()
+            return render_template('transactions/_grid.html', transactions=transactions)
         except Exception as e:
             db.session.rollback()
             flash('Error updating transaction: ' + str(e), 'error')

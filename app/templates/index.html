@@ -2,6 +2,110 @@
 
 {% block title %}Dashboard{% endblock %}
 
+{% block content %}
+{% if not current_user.is_authenticated %}
+<div class="flex min-h-screen">
+    <div class="flex-1 flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold mb-2">Sign In</h1>
+                <p class="text-base-content/70">Welcome back to Quadrex</p>
+            </div>
+
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Email</span>
+                        </label>
+                        <input type="email" id="email" placeholder="Enter your email" class="input input-bordered" />
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Password</span>
+                        </label>
+                        <input type="password" id="password" placeholder="Enter your password" class="input input-bordered" />
+                        <label class="label">
+                            <span class="label-text-alt">
+                                <input type="checkbox" class="checkbox checkbox-xs mr-2" />
+                                Remember me
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="form-control mt-6">
+                        <button class="btn btn-primary">SIGN IN</button>
+                    </div>
+
+                    <div class="divider">or</div>
+
+                    <button id="passkey-button" class="btn btn-outline w-full">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        Sign in with Passkey
+                    </button>
+
+                    <div class="mt-6 text-center text-sm">
+                        <span class="text-base-content/70">Don't have an account?</span>
+                        <a href="{{ url_for('auth.register') }}" class="link link-primary">CREATE ACCOUNT</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hidden lg:flex flex-1 bg-base-200 items-center justify-center p-8">
+        <div class="max-w-xl">
+            <h2 class="text-5xl font-bold mb-8">Master Your Finances Today!</h2>
+            <p class="text-xl mb-12 text-base-content/70">
+                Quadrex is your personal finance companion for mastering the four pillars of financial management. Track expenses, analyze income, set budgets, and get insights with our powerful yet simple tools.
+            </p>
+
+            <div class="grid grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Track Expenses</h3>
+                    <p class="text-base-content/70">Monitor your spending habits effortlessly</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Analyze Income</h3>
+                    <p class="text-base-content/70">Keep track of all your revenue sources</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Set Budgets</h3>
+                    <p class="text-base-content/70">Plan and stick to your financial goals</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">View Reports</h3>
+                    <p class="text-base-content/70">Get insights with detailed analytics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Passkey Email Modal -->
+<dialog id="passkey-modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Sign in with Passkey</h3>
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Email</span>
+            </label>
+            <input type="email" id="passkey-email" placeholder="Enter your email" class="input input-bordered" />
+        </div>
+        <div class="modal-action">
+            <button id="passkey-submit" class="btn btn-primary">Continue</button>
+            <button class="btn" onclick="passkey-modal.close()">Cancel</button>
+        </div>
+    </div>
+</dialog>
+{% else %}
+    {{ super() }}
+{% endif %}
+{% endblock %}
+
 {% block app_content %}
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
     <!-- Summary Cards -->
@@ -83,3 +187,154 @@
     </div>
 </div>
 {% endblock %}
+
+{% if not current_user.is_authenticated %}
+<script>
+// Utility functions for base64url encoding/decoding
+function base64urlToBuffer(base64url) {
+    const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+    const padding = '='.repeat((4 - base64.length % 4) % 4);
+    const binary = window.atob(base64 + padding);
+    const buffer = new ArrayBuffer(binary.length);
+    const bytes = new Uint8Array(buffer);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return buffer;
+}
+
+function bufferToBase64url(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    const base64 = window.btoa(binary);
+    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const passkeyButton = document.getElementById('passkey-button');
+    const passkeyModal = document.getElementById('passkey-modal');
+    const passkeySubmit = document.getElementById('passkey-submit');
+    const emailInput = document.getElementById('passkey-email');
+
+    async function handlePasskeyAuth(email) {
+        if (!email) {
+            alert('Please enter your email address');
+            return;
+        }
+
+        try {
+            // Disable buttons during authentication
+            passkeyButton.classList.add('btn-disabled');
+            if (passkeySubmit) passkeySubmit.classList.add('btn-disabled');
+            
+            const buttonToUpdate = passkeySubmit || passkeyButton;
+            buttonToUpdate.textContent = 'Authenticating...';
+
+            // Get authentication options
+            const optionsResponse = await fetch('{{ url_for("auth.passkey_authenticate") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: email })
+            });
+
+            if (!optionsResponse.ok) {
+                const error = await optionsResponse.json();
+                throw new Error(error.error || 'Failed to get authentication options');
+            }
+
+            const options = await optionsResponse.json();
+
+            // Start the authentication
+            const credential = await navigator.credentials.get({
+                publicKey: {
+                    challenge: base64urlToBuffer(options.challenge),
+                    rpId: options.rpId,
+                    allowCredentials: options.allowCredentials.map(cred => ({
+                        id: base64urlToBuffer(cred.id),
+                        type: cred.type,
+                        transports: cred.transports
+                    })),
+                    userVerification: options.userVerification
+                }
+            });
+
+            // Prepare the authentication data
+            const authData = {
+                id: credential.id,
+                rawId: bufferToBase64url(credential.rawId),
+                response: {
+                    authenticatorData: bufferToBase64url(credential.response.authenticatorData),
+                    clientDataJSON: bufferToBase64url(credential.response.clientDataJSON),
+                    signature: bufferToBase64url(credential.response.signature),
+                    userHandle: credential.response.userHandle ? bufferToBase64url(credential.response.userHandle) : null
+                },
+                type: credential.type
+            };
+
+            // Verify the authentication
+            const verifyResponse = await fetch('{{ url_for("auth.verify_passkey_authentication") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(authData)
+            });
+
+            if (!verifyResponse.ok) {
+                const error = await verifyResponse.json();
+                throw new Error(error.error || 'Failed to verify authentication');
+            }
+
+            const result = await verifyResponse.json();
+            if (result.redirect) {
+                window.location.href = result.redirect;
+            } else {
+                window.location.href = '{{ url_for("main.index") }}';
+            }
+        } catch (error) {
+            console.error('Authentication error:', error);
+            alert(error.message || 'Authentication failed');
+            
+            // Reset button states
+            passkeyButton.classList.remove('btn-disabled');
+            if (passkeySubmit) {
+                passkeySubmit.classList.remove('btn-disabled');
+                passkeySubmit.textContent = 'Continue';
+            }
+            passkeyButton.innerHTML = `
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                </svg>
+                Sign in with Passkey
+            `;
+        } finally {
+            if (passkeyModal) passkeyModal.close();
+        }
+    }
+
+    // Open modal when passkey button is clicked
+    passkeyButton.addEventListener('click', function() {
+        passkeyModal.showModal();
+        emailInput.focus();
+    });
+
+    // Handle submit button in modal
+    passkeySubmit.addEventListener('click', function() {
+        handlePasskeyAuth(emailInput.value);
+    });
+
+    // Handle enter key in email input
+    emailInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handlePasskeyAuth(emailInput.value);
+        }
+    });
+});
+</script>
+{% endif %}

@@ -26,12 +26,9 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def change_password(self, current_password, new_password):
-        """Change user's password after verifying current password."""
-        if not self.check_password(current_password):
-            return False
-        self.set_password(new_password)
-        return True
+    def has_passkey(self):
+        """Check if user has a passkey registered."""
+        return bool(self.passkey_credential_id and self.passkey_public_key)
 
     def set_passkey(self, credential_id, public_key):
         """Set user's passkey credentials."""
@@ -42,6 +39,13 @@ class User(UserMixin, db.Model):
     def update_passkey_sign_count(self, new_count):
         """Update the sign count for passkey authentication."""
         self.passkey_sign_count = new_count
+
+    def change_password(self, current_password, new_password):
+        """Change user's password after verifying current password."""
+        if not self.check_password(current_password):
+            return False
+        self.set_password(new_password)
+        return True
 
     def create_default_categories(self):
         """Create default categories for the user."""

@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<div class="p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold mb-8">Account Settings</h1>
+
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title">Profile Information</h2>
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="label">Username</label>
+                        <p class="text-lg">{{ current_user.username }}</p>
+                    </div>
+                    <div>
+                        <label class="label">Email</label>
+                        <p class="text-lg">{{ current_user.email }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Security Settings</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-2">Password</h3>
+                    <p class="text-base-content/70 mb-4">Change your account password</p>
+                    <a href="{{ url_for('auth.change_password') }}" class="btn btn-primary">
+                        Change Password
+                    </a>
+                </div>
+
+                <div class="divider"></div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Passkey Authentication</h3>
+                    <p class="text-base-content/70 mb-4">
+                        {% if current_user.has_passkey() %}
+                            You have a passkey registered. You can use it to sign in securely without a password.
+                        {% else %}
+                            Register a passkey to sign in securely without a password.
+                        {% endif %}
+                    </p>
+                    <button id="register-passkey" class="btn btn-primary {% if current_user.has_passkey() %}btn-disabled{% endif %}">
+                        {% if current_user.has_passkey() %}
+                            Passkey Registered
+                        {% else %}
+                            Register Passkey
+                        {% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Utility functions for base64url encoding/decoding
+function base64urlToBuffer(base64url) {
+    const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+    const padding = '='.repeat((4 - base64.length % 4) % 4);
+    const binary = window.atob(base64 + padding);
+    const buffer = new ArrayBuffer(binary.length);
+    const bytes = new Uint8Array(buffer);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return buffer;
+}
+
+function bufferToBase64url(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    const base64 = window.btoa(binary);
+    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const registerButton = document.getElementById('register-passkey');
+    if (!registerButton || registerButton.classList.contains('btn-disabled')) return;
+
+    registerButton.addEventListener('click', async function() {
+        try {
+            // Disable button during registration
+            registerButton.classList.add('btn-disabled');
+            registerButton.textContent = 'Registering...';
+
+            // Get registration options from server
+            const optionsResponse = await fetch('{{ url_for("auth.register_passkey") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!optionsResponse.ok) {
+                const error = await optionsResponse.json();
+                throw new Error(error.error || 'Failed to get registration options');
+            }
+
+            const options = await optionsResponse.json();
+
+            // Convert challenge and user ID from base64url to ArrayBuffer
+            options.challenge = base64urlToBuffer(options.challenge);
+            options.user.id = base64urlToBuffer(options.user.id);
+
+            // Convert any excludeCredentials
+            if (options.excludeCredentials) {
+                options.excludeCredentials = options.excludeCredentials.map(cred => ({
+                    ...cred,
+                    id: base64urlToBuffer(cred.id)
+                }));
+            }
+
+            // Create credentials
+            const credential = await navigator.credentials.create({
+                publicKey: options
+            });
+
+            // Prepare registration data
+            const registrationData = {
+                id: credential.id,
+                rawId: bufferToBase64url(credential.rawId),
+                response: {
+                    attestationObject: bufferToBase64url(credential.response.attestationObject),
+                    clientDataJSON: bufferToBase64url(credential.response.clientDataJSON)
+                },
+                type: credential.type,
+                clientExtensionResults: credential.getClientExtensionResults()
+            };
+
+            // Verify registration
+            const verifyResponse = await fetch('{{ url_for("auth.verify_passkey_registration") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(registrationData)
+            });
+
+            if (!verifyResponse.ok) {
+                const error = await verifyResponse.json();
+                throw new Error(error.error || 'Failed to verify registration');
+            }
+
+            // Update UI on success
+            registerButton.textContent = 'Passkey Registered';
+            registerButton.classList.add('btn-success');
+            location.reload();
+        } catch (error) {
+            console.error('Registration error:', error);
+            alert(error.message || 'Failed to register passkey');
+            
+            // Reset button state
+            registerButton.classList.remove('btn-disabled');
+            registerButton.textContent = 'Register Passkey';
+        }
+    });
+});
+</script>
+{% endblock %}

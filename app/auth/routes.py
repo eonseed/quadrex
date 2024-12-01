@@ -1,9 +1,9 @@
 from flask import render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user, login_required
 from app import db
 from app.auth import bp
 from app.models import User
-from app.auth.forms import LoginForm, RegistrationForm
+from app.auth.forms import LoginForm, RegistrationForm, ChangePasswordForm
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -37,6 +37,19 @@ def register():
         flash('Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Register', form=form)
+
+@bp.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if current_user.change_password(form.current_password.data, form.new_password.data):
+            db.session.commit()
+            flash('Your password has been changed successfully.', 'success')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Invalid current password.', 'error')
+    return render_template('auth/change_password.html', title='Change Password', form=form)
 
 @bp.route('/logout')
 def logout():

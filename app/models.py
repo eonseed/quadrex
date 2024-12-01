@@ -3,20 +3,45 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db, login_manager
 from app.default_categories import DEFAULT_CATEGORIES
+from sqlalchemy import UniqueConstraint
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
+    passkey_credential_id = db.Column(db.String(256), nullable=True)
+    passkey_public_key = db.Column(db.String(512), nullable=True)
+    passkey_sign_count = db.Column(db.Integer, default=0)
     transactions = db.relationship('Transaction', backref='user', lazy=True)
     categories = db.relationship('Category', backref='user', lazy=True)
+
+    __table_args__ = (
+        UniqueConstraint('passkey_credential_id', name='uq_user_passkey_credential_id'),
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def change_password(self, current_password, new_password):
+        """Change user's password after verifying current password."""
+        if not self.check_password(current_password):
+            return False
+        self.set_password(new_password)
+        return True
+
+    def set_passkey(self, credential_id, public_key):
+        """Set user's passkey credentials."""
+        self.passkey_credential_id = credential_id
+        self.passkey_public_key = public_key
+        self.passkey_sign_count = 0
+
+    def update_passkey_sign_count(self, new_count):
+        """Update the sign count for passkey authentication."""
+        self.passkey_sign_count = new_count
 
     def create_default_categories(self):
         """Create default categories for the user."""

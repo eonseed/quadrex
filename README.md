@@ -92,7 +92,7 @@ quadrex/
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/quadrex.git
+    git clone https://github.com/eonseed/quadrex.git
     cd quadrex
     ```
 
@@ -136,6 +136,7 @@ To create a new migration after model changes:
 ```bash
 uv run flask db migrate -m "Description of changes"
 uv run flask db upgrade
+```
 
 ### Running Tests
 

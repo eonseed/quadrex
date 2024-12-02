@@ -77,3 +77,4 @@ wheels/
 
 #Flask
 instance/
+.env

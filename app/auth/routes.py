@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request, jsonify, session
+from flask import render_template, redirect, url_for, flash, request, jsonify, session, current_app
 from flask_login import login_user, logout_user, current_user, login_required
 from app import db, csrf
 from app.auth import bp
@@ -112,7 +112,7 @@ def register_passkey():
             
             # Generate registration options
             options = generate_registration_options(
-                rp_id="localhost",  
+                rp_id=current_app.config['RP_ID'],  
                 rp_name="Quadrex",
                 user_id=user_id,
                 user_name=user.email,
@@ -188,7 +188,7 @@ def verify_passkey_registration():
             verification = verify_registration_response(
                 credential=credential,
                 expected_challenge=base64.b64decode(challenge),
-                expected_rp_id="localhost",
+                expected_rp_id=current_app.config['RP_ID'],
                 expected_origin=request.url_root.rstrip('/'),
                 require_user_verification=True
             )
@@ -296,7 +296,7 @@ def passkey_authenticate():
             options = {
                 "challenge": challenge_b64,
                 "timeout": 30000,
-                "rpId": "localhost",
+                "rpId": current_app.config['RP_ID'],
                 "allowCredentials": allow_credentials,
                 "userVerification": "preferred"
             }
@@ -369,7 +369,7 @@ def verify_passkey_authentication():
             verification = verify_authentication_response(
                 credential=credential,
                 expected_challenge=base64.b64decode(challenge),
-                expected_rp_id="localhost",
+                expected_rp_id=current_app.config['RP_ID'],
                 expected_origin=request.url_root.rstrip('/'),
                 credential_public_key=base64url_to_bytes(user.passkey_public_key),
                 credential_current_sign_count=user.passkey_sign_count,

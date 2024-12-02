@@ -41,13 +41,13 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid email or password', 'error')
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('main.index'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or not next_page.startswith('/'):
             next_page = url_for('main.index')
         return redirect(next_page)
-    return render_template('auth/login.html', title='Sign In', form=form)
+    return render_template('landing.html', title='Welcome', form=form)
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():

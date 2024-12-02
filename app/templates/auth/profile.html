@@ -1,167 +1,111 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-<div class="p-8">
-    <div class="max-w-2xl mx-auto">
-        <h1 class="text-2xl font-bold mb-8">Account Settings</h1>
-
-        <div class="card bg-base-100 shadow-xl mb-8">
-            <div class="card-body">
-                <h2 class="card-title">Profile Information</h2>
-                <div class="grid grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <label class="label">Username</label>
-                        <p class="text-lg">{{ current_user.username }}</p>
-                    </div>
-                    <div>
-                        <label class="label">Email</label>
-                        <p class="text-lg">{{ current_user.email }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card bg-base-100 shadow-xl mb-8">
-            <div class="card-body">
-                <h2 class="card-title mb-4">Security Settings</h2>
-                
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-2">Password</h3>
-                    <p class="text-base-content/70 mb-4">Change your account password</p>
-                    <a href="{{ url_for('auth.change_password') }}" class="btn btn-primary">
-                        Change Password
-                    </a>
-                </div>
-
-                <div class="divider"></div>
-
+<div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-8">Account Settings</h1>
+    
+    <!-- Profile Information -->
+    <div class="card bg-base-100 shadow-xl mb-8">
+        <div class="card-body">
+            <h2 class="card-title">Account Information</h2>
+            <div class="space-y-4">
                 <div>
-                    <h3 class="text-lg font-semibold mb-2">Passkey Authentication</h3>
-                    <p class="text-base-content/70 mb-4">
-                        {% if current_user.has_passkey() %}
-                            You have a passkey registered. You can use it to sign in securely without a password.
-                        {% else %}
-                            Register a passkey to sign in securely without a password.
-                        {% endif %}
-                    </p>
-                    <button id="register-passkey" class="btn btn-primary {% if current_user.has_passkey() %}btn-disabled{% endif %}">
-                        {% if current_user.has_passkey() %}
-                            Passkey Registered
-                        {% else %}
-                            Register Passkey
-                        {% endif %}
-                    </button>
+                    <label class="label">
+                        <span class="label-text">Email</span>
+                    </label>
+                    <p class="text-base-content/70">{{ current_user.email }}</p>
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text">Username</span>
+                    </label>
+                    <p class="text-base-content/70">{{ current_user.username }}</p>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-// Utility functions for base64url encoding/decoding
-function base64urlToBuffer(base64url) {
-    const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
-    const padding = '='.repeat((4 - base64.length % 4) % 4);
-    const binary = window.atob(base64 + padding);
-    const buffer = new ArrayBuffer(binary.length);
-    const bytes = new Uint8Array(buffer);
-    for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-    }
-    return buffer;
-}
-
-function bufferToBase64url(buffer) {
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    const base64 = window.btoa(binary);
-    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const registerButton = document.getElementById('register-passkey');
-    if (!registerButton || registerButton.classList.contains('btn-disabled')) return;
-
-    registerButton.addEventListener('click', async function() {
-        try {
-            // Disable button during registration
-            registerButton.classList.add('btn-disabled');
-            registerButton.textContent = 'Registering...';
-
-            // Get registration options from server
-            const optionsResponse = await fetch('{{ url_for("auth.register_passkey") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!optionsResponse.ok) {
-                const error = await optionsResponse.json();
-                throw new Error(error.error || 'Failed to get registration options');
-            }
-
-            const options = await optionsResponse.json();
-
-            // Convert challenge and user ID from base64url to ArrayBuffer
-            options.challenge = base64urlToBuffer(options.challenge);
-            options.user.id = base64urlToBuffer(options.user.id);
-
-            // Convert any excludeCredentials
-            if (options.excludeCredentials) {
-                options.excludeCredentials = options.excludeCredentials.map(cred => ({
-                    ...cred,
-                    id: base64urlToBuffer(cred.id)
-                }));
-            }
-
-            // Create credentials
-            const credential = await navigator.credentials.create({
-                publicKey: options
-            });
-
-            // Prepare registration data
-            const registrationData = {
-                id: credential.id,
-                rawId: bufferToBase64url(credential.rawId),
-                response: {
-                    attestationObject: bufferToBase64url(credential.response.attestationObject),
-                    clientDataJSON: bufferToBase64url(credential.response.clientDataJSON)
-                },
-                type: credential.type,
-                clientExtensionResults: credential.getClientExtensionResults()
-            };
-
-            // Verify registration
-            const verifyResponse = await fetch('{{ url_for("auth.verify_passkey_registration") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(registrationData)
-            });
-
-            if (!verifyResponse.ok) {
-                const error = await verifyResponse.json();
-                throw new Error(error.error || 'Failed to verify registration');
-            }
-
-            // Update UI on success
-            registerButton.textContent = 'Passkey Registered';
-            registerButton.classList.add('btn-success');
-            location.reload();
-        } catch (error) {
-            console.error('Registration error:', error);
-            alert(error.message || 'Failed to register passkey');
+    <!-- Security Settings -->
+    <div class="card bg-base-100 shadow-xl mb-8">
+        <div class="card-body">
+            <h2 class="card-title">Security Settings</h2>
             
-            // Reset button state
-            registerButton.classList.remove('btn-disabled');
-            registerButton.textContent = 'Register Passkey';
-        }
-    });
-});
-</script>
+            <!-- Change Password -->
+            <div class="space-y-4 mb-8">
+                <h3 class="text-lg font-semibold">Password</h3>
+                <p class="text-base-content/70">Change your account password</p>
+                <a href="{{ url_for('auth.change_password') }}" class="btn btn-primary">
+                    Change Password
+                </a>
+            </div>
+
+            <!-- Passkey Registration Section -->
+            <div class="divider"></div>
+            
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold">Passkey Authentication</h3>
+                
+                <!-- Error Message -->
+                <div id="passkey-error" class="alert alert-error shadow-lg mb-4 hidden">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span id="passkey-error-message"></span>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div id="passkey-success" class="alert alert-success shadow-lg mb-4 hidden">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span id="passkey-success-message"></span>
+                    </div>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="passkey-loading" class="alert shadow-lg mb-4 hidden">
+                    <div>
+                        <span class="loading loading-spinner"></span>
+                        <span>Processing...</span>
+                    </div>
+                </div>
+
+                {% if not current_user.has_passkey() %}
+                <div class="space-y-4">
+                    <p class="text-base-content/70">
+                        Register a passkey to enable passwordless login. This provides a more secure way to access your account.
+                    </p>
+                    <button id="register-passkey-btn" class="btn btn-primary" type="button">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        Register Passkey
+                    </button>
+                </div>
+                {% else %}
+                <div class="space-y-4">
+                    <div class="alert alert-success">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Passkey is active and ready to use</span>
+                    </div>
+                    <p class="text-base-content/70">
+                        You can now use your passkey to sign in to your account securely.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/webauthn-utils.js') }}" type="module"></script>
+    <script src="{{ url_for('static', filename='js/passkey-register.js') }}" type="module"></script>
 {% endblock %}

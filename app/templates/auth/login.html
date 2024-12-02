@@ -1,177 +1,84 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="flex min-h-screen items-center justify-center bg-base-200">
+<div class="min-h-screen flex items-center justify-center bg-base-200 py-12 px-4 sm:px-6 lg:px-8">
     <div class="card w-96 bg-base-100 shadow-xl">
         <div class="card-body">
-            <h2 class="card-title justify-center">Sign In</h2>
-            <form method="post" action="" class="mt-4">
+            <h2 class="card-title text-2xl font-bold text-center">Sign in to Quadrex</h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} shadow-lg">
+                            <div>
+                                {% if category == 'success' %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                {% endif %}
+                                <span>{{ message }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form class="mt-8 space-y-6" action="" method="post" novalidate>
                 {{ form.hidden_tag() }}
-                <div class="form-control w-full mb-4">
-                    <label class="label">
-                        <span class="label-text">{{ form.email.label }}</span>
-                    </label>
-                    {{ form.email(class="input input-bordered w-full") }}
+                
+                <div class="form-control">
+                    {{ form.email.label(class="label") }}
+                    {{ form.email(class="input input-bordered w-full", placeholder="name@example.com") }}
                     {% for error in form.email.errors %}
                         <div class="text-error text-sm mt-1">{{ error }}</div>
                     {% endfor %}
                 </div>
 
-                <div class="form-control w-full mb-6">
-                    <label class="label">
-                        <span class="label-text">{{ form.password.label }}</span>
-                    </label>
-                    {{ form.password(class="input input-bordered w-full") }}
+                <div class="form-control">
+                    {{ form.password.label(class="label") }}
+                    {{ form.password(class="input input-bordered w-full", placeholder="••••••••") }}
                     {% for error in form.password.errors %}
                         <div class="text-error text-sm mt-1">{{ error }}</div>
                     {% endfor %}
                 </div>
 
-                <div class="form-control mb-6">
-                    <label class="label cursor-pointer">
-                        <span class="label-text">{{ form.remember_me.label }}</span>
-                        {{ form.remember_me(class="checkbox") }}
-                    </label>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        {{ form.remember_me(class="checkbox checkbox-primary") }}
+                        {{ form.remember_me.label(class="label-text ml-2") }}
+                    </div>
                 </div>
 
-                <div class="card-actions justify-center">
+                <div class="card-actions">
                     {{ form.submit(class="btn btn-primary w-full") }}
+                </div>
+                
+                <div id="passkey-container" class="hidden">
+                    <div class="divider">or</div>
+                    <button type="button" id="passkey-button" class="btn btn-outline w-full">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 14.5V16.5M7 10.0288C7.47142 10.0288 7.86284 9.63734 7.86284 9.16592C7.86284 8.69449 7.47142 8.30307 7 8.30307C6.52858 8.30307 6.13716 8.69449 6.13716 9.16592C6.13716 9.63734 6.52858 10.0288 7 10.0288Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 8.5V15.5C21 18.2614 18.7614 20.5 16 20.5H8C5.23858 20.5 3 18.2614 3 15.5V8.5C3 5.73858 5.23858 3.5 8 3.5H16C18.7614 3.5 21 5.73858 21 8.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11.5 9.16592C11.5 10.5487 10.3828 11.6659 9 11.6659C7.61716 11.6659 6.5 10.5487 6.5 9.16592C6.5 7.78308 7.61716 6.66592 9 6.66592C10.3828 6.66592 11.5 7.78308 11.5 9.16592Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Sign in with Passkey
+                    </button>
                 </div>
             </form>
 
-            <div class="divider">OR</div>
-
-            <button id="passkey-button" class="btn btn-outline w-full">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-                </svg>
-                Sign in with Passkey
-            </button>
-
             <div class="text-center mt-4">
-                <p>New User? <a href="{{ url_for('auth.register') }}" class="link link-primary">Register</a></p>
+                <p class="text-sm">
+                    New to Quadrex? 
+                    <a href="{{ url_for('auth.register') }}" class="link link-primary">Create an account</a>
+                </p>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-// Utility functions for base64url encoding/decoding
-function base64urlToBuffer(base64url) {
-    const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
-    const padding = '='.repeat((4 - base64.length % 4) % 4);
-    const binary = window.atob(base64 + padding);
-    const buffer = new ArrayBuffer(binary.length);
-    const bytes = new Uint8Array(buffer);
-    for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-    }
-    return buffer;
-}
+{% endblock %}
 
-function bufferToBase64url(buffer) {
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    const base64 = window.btoa(binary);
-    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const passkeyButton = document.getElementById('passkey-button');
-    const emailInput = document.querySelector('input[name="email"]');
-
-    passkeyButton.addEventListener('click', async function() {
-        const email = emailInput.value;
-        if (!email) {
-            alert('Please enter your email address first');
-            return;
-        }
-
-        try {
-            // Disable button during authentication
-            passkeyButton.classList.add('btn-disabled');
-            passkeyButton.textContent = 'Authenticating...';
-
-            // Get authentication options
-            const optionsResponse = await fetch('{{ url_for("auth.passkey_authenticate") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email: email })
-            });
-
-            if (!optionsResponse.ok) {
-                const error = await optionsResponse.json();
-                throw new Error(error.error || 'Failed to get authentication options');
-            }
-
-            const options = await optionsResponse.json();
-
-            // Start the authentication
-            const credential = await navigator.credentials.get({
-                publicKey: {
-                    challenge: base64urlToBuffer(options.challenge),
-                    rpId: options.rpId,
-                    allowCredentials: options.allowCredentials.map(cred => ({
-                        id: base64urlToBuffer(cred.id),
-                        type: cred.type,
-                        transports: cred.transports
-                    })),
-                    userVerification: options.userVerification
-                }
-            });
-
-            // Prepare the authentication data
-            const authData = {
-                id: credential.id,
-                rawId: bufferToBase64url(credential.rawId),
-                response: {
-                    authenticatorData: bufferToBase64url(credential.response.authenticatorData),
-                    clientDataJSON: bufferToBase64url(credential.response.clientDataJSON),
-                    signature: bufferToBase64url(credential.response.signature),
-                    userHandle: credential.response.userHandle ? bufferToBase64url(credential.response.userHandle) : null
-                },
-                type: credential.type
-            };
-
-            // Verify the authentication
-            const verifyResponse = await fetch('{{ url_for("auth.verify_passkey_authentication") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(authData)
-            });
-
-            if (!verifyResponse.ok) {
-                const error = await verifyResponse.json();
-                throw new Error(error.error || 'Failed to verify authentication');
-            }
-
-            const result = await verifyResponse.json();
-            if (result.redirect) {
-                window.location.href = result.redirect;
-            } else {
-                window.location.href = '{{ url_for("main.index") }}';
-            }
-        } catch (error) {
-            console.error('Authentication error:', error);
-            alert(error.message || 'Authentication failed');
-            
-            // Reset button state
-            passkeyButton.classList.remove('btn-disabled');
-            passkeyButton.innerHTML = `
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-                </svg>
-                Sign in with Passkey
-            `;
-        }
-    });
-});
-</script>
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/webauthn-utils.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/passkey-auth.js') }}"></script>
 {% endblock %}

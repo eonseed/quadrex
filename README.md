@@ -87,7 +87,7 @@ quadrex/
 └── run.py             # Application entry point
 ```
 
-**## Installation**
+## Installation
 
 1. Clone the repository:
 
@@ -127,15 +127,16 @@ quadrex/
 
     The application will be available at `http://localhost:5000`
 
-**## Development**
+## Development
 
-**### Database Migrations**
+### Database Migrations
 
 To create a new migration after model changes:
 
 ```bash
 uv run flask db migrate -m "Description of changes"
 uv run flask db upgrade
+```
 
 ### Running Tests
 
@@ -150,6 +151,24 @@ This project follows PEP 8 style guide. To check code style:
 ```bash
 uv run ruff check
 ```
+
+### Building Documentation
+
+To build the Sphinx documentation:
+
+1. Navigate to the `docs` directory:
+
+    ```bash
+    cd docs
+    ```
+
+2. Build the HTML documentation:
+
+    ```bash
+    uv run make html
+    ```
+
+    The documentation will be available in the `_build/html` directory.
 
 ## Security
 

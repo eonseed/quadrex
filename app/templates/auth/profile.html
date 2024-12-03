@@ -96,6 +96,12 @@
                     <p class="text-base-content/70">
                         You can now use your passkey to sign in to your account securely.
                     </p>
+                    <button id="remove-passkey-btn" class="btn btn-error" type="button">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Remove Passkey
+                    </button>
                 </div>
                 {% endif %}
             </div>
@@ -108,4 +114,5 @@
     {{ super() }}
     <script src="{{ url_for('static', filename='js/webauthn-utils.js') }}" type="module"></script>
     <script src="{{ url_for('static', filename='js/passkey-register.js') }}" type="module"></script>
+    <script src="{{ url_for('static', filename='js/passkey-management.js') }}" type="module"></script>
 {% endblock %}

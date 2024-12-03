@@ -235,7 +235,7 @@ def passkey_authenticate():
         # Initialize allow_credentials list
         allow_credentials = []
         
-        if email:
+        if (email):
             # If email provided, only allow that user's passkey
             user = User.query.filter_by(email=email).first()
             if not user or not user.has_passkey():

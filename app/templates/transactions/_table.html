@@ -45,6 +45,7 @@
                                     class="btn btn-ghost btn-sm tooltip tooltip-left text-error"
                                     data-tip="Delete"
                                     hx-delete="{{ url_for('transactions.delete', id=transaction.id) }}"
+                                    hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
                                     hx-confirm="Are you sure you want to delete this transaction?"
                                     hx-target="#transactions-grid"
                                     hx-swap="innerHTML">

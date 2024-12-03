@@ -3,6 +3,7 @@
           hx-target="#transactions-grid"
           hx-swap="innerHTML"
           hx-on::after-request="if(event.detail.successful) { closeModal(); }">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <h3 class="font-bold text-lg mb-4">
             {% if transaction %}Edit{% else %}Add{% endif %} Transaction
         </h3>

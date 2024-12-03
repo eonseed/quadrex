@@ -40,6 +40,12 @@ class User(UserMixin, db.Model):
         """Update the sign count for passkey authentication."""
         self.passkey_sign_count = new_count
 
+    def remove_passkey(self):
+        """Remove user's passkey credentials."""
+        self.passkey_credential_id = None
+        self.passkey_public_key = None
+        self.passkey_sign_count = 0
+
     def change_password(self, current_password, new_password):
         """Change user's password after verifying current password."""
         if not self.check_password(current_password):

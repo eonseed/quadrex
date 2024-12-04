@@ -20,14 +20,13 @@ classifiers = [
 ]
 
 dependencies = [
-    "flask-sqlalchemy==3.0.2",
-    "flask==2.2.5",
-    "flask-migrate==4.0.4",
-    "flask-login==0.6.2",
-    "flask-wtf==1.1.1",
-    "email-validator==2.0.0.post2",
-    "python-dotenv==1.0.0",
-    "werkzeug==2.2.3",
+    "flask-sqlalchemy>=3.0.2",
+    "flask>=2.2.5",
+    "flask-migrate>=4.0.4",
+    "flask-login>=0.6.2",
+    "flask-wtf>=1.1.1",
+    "email-validator>=2.0.0.post2",
+    "python-dotenv>=1.0.0",
     "ruff>=0.8.1",
     "webauthn>=2.3.0",
     "sphinx>=8.1.3",

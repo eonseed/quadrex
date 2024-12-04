@@ -373,7 +373,7 @@ def verify_passkey_authentication():
                 expected_origin=request.url_root.rstrip('/'),
                 credential_public_key=base64url_to_bytes(user.passkey_public_key),
                 credential_current_sign_count=user.passkey_sign_count,
-                require_user_verification=True
+                #require_user_verification=True
             )
             print(f"Verification successful: {verification}")
 

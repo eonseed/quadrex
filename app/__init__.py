@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from config import Config
+from app.filters import date_filter
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -39,6 +40,9 @@ def create_app(config_class=Config):
 
     from app.cli import register_commands
     register_commands(app)
+
+    # Register filters
+    app.jinja_env.filters['date_filter'] = date_filter
 
     return app
 

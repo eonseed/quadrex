@@ -27,7 +27,7 @@
         <tbody>
             {% for budget in budgets %}
             <tr>
-                <td>{{ budget.month.strftime('%B %Y') }}</td>
+                <td>{{ budget.month|date_filter('%B %Y') }}</td>
                 <td>{{ "${:,.2f}".format(budget.total_budget) }}</td>
                 <td>
                     {% for allocation in budget.category_allocations %}

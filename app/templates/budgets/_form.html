@@ -1,4 +1,4 @@
-<form method="POST" hx-post="{{ url_for('budgets.add_budget' if not budget else 'budgets.edit_budget', id=budget.id if budget else None) }}" hx-target="#budget-form-content" hx-swap="innerHTML">
+<form method="POST" hx-post="{{ url_for('budgets.add_budget' if not budget else 'budgets.edit_budget', id=budget.id if budget else None) }}" hx-target="#budget-modal" hx-swap="innerHTML">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     {% if budget %}
     <input type="hidden" name="budget_id" value="{{ budget.id }}">
@@ -55,7 +55,7 @@
     </div>
 
     <div class="form-control mt-6 flex justify-between">
-        <button type="button" class="btn btn-ghost btn-sm" hx-get="javascript:void(0)" hx-target="#budget-modal" hx-swap="innerHTML" onclick="closeModal()">Cancel</button>
+        <button type="button" class="btn btn-ghost btn-sm" hx-get="javascript:void(0)" hx-target="#budget-modal" hx-swap="innerHTML" onclick="document.getElementById('budget-modal').close()">Cancel</button>
         <button type="submit" class="btn btn-primary btn-sm">Save Budget</button>
     </div>
 </form>

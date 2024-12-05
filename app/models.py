@@ -111,9 +111,11 @@ class Budget(db.Model):
     month = db.Column(db.Date, nullable=False)
     total_budget = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    category_allocations = db.relationship('CategoryAllocation', backref='budget', lazy=True)
 
 class CategoryAllocation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     percentage = db.Column(db.Float, nullable=False)
+    budget = db.relationship('Budget', backref='category_allocations')

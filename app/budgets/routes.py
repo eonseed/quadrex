@@ -80,7 +80,7 @@ def add_budget():
         return redirect(url_for('budgets.list_budgets'))
     
     categories = Category.query.filter_by(user_id=current_user.id).all()
-    return render_template('budgets/_form.html', categories=categories)
+    return render_template('budgets/_form.html', categories=categories, budget=None)
 
 @bp.route('/<int:id>/edit', methods=['GET', 'POST'])
 @login_required

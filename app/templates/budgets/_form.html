@@ -22,17 +22,19 @@
             <span class="label-text">Category Allocations (Optional)</span>
         </label>
         <div id="category-allocations">
-            {% for allocation in budget.category_allocations %}
-            <div class="flex items-center gap-2 mb-2">
-                <select name="category_allocations[][category_id]" class="select select-bordered">
-                    {% for category in categories %}
-                        <option value="{{ category.id }}" {% if allocation.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
-                    {% endfor %}
-                </select>
-                <input type="number" name="category_allocations[][percentage]" class="input input-bordered" placeholder="Percentage" min="0" max="100" value="{{ allocation.percentage }}">
-                <button type="button" class="btn btn-error btn-sm" onclick="removeCategoryAllocation(this)">Remove</button>
-            </div>
-            {% endfor %}
+            {% if budget %}
+                {% for allocation in budget.category_allocations %}
+                <div class="flex items-center gap-2 mb-2">
+                    <select name="category_allocations[][category_id]" class="select select-bordered">
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if allocation.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="category_allocations[][percentage]" class="input input-bordered" placeholder="Percentage" min="0" max="100" value="{{ allocation.percentage }}">
+                    <button type="button" class="btn btn-error btn-sm" onclick="removeCategoryAllocation(this)">Remove</button>
+                </div>
+                {% endfor %}
+            {% endif %}
         </div>
         <button type="button" class="btn btn-primary btn-sm" onclick="addCategoryAllocation()">Add Category</button>
     </div>

@@ -77,6 +77,11 @@ def add_budget():
         
         db.session.commit()
         flash('Budget added successfully', 'success')
+        
+        if request.headers.get('HX-Request'):
+            budgets = Budget.query.filter_by(user_id=current_user.id).all()
+            return render_template('budgets/_grid.html', budgets=budgets)
+        
         return render_template('budgets/list.html', budgets=Budget.query.filter_by(user_id=current_user.id).all())
     
     categories = Category.query.filter_by(user_id=current_user.id).all()
@@ -105,6 +110,11 @@ def edit_budget(id):
         
         db.session.commit()
         flash('Budget updated successfully', 'success')
+        
+        if request.headers.get('HX-Request'):
+            budgets = Budget.query.filter_by(user_id=current_user.id).all()
+            return render_template('budgets/_grid.html', budgets=budgets)
+        
         return render_template('budgets/list.html', budgets=Budget.query.filter_by(user_id=current_user.id).all())
     
     categories = Category.query.filter_by(user_id=current_user.id).all()
@@ -117,4 +127,9 @@ def delete_budget(id):
     db.session.delete(budget)
     db.session.commit()
     flash('Budget deleted successfully', 'success')
+    
+    if request.headers.get('HX-Request'):
+        budgets = Budget.query.filter_by(user_id=current_user.id).all()
+        return render_template('budgets/_grid.html', budgets=budgets)
+    
     return render_template('budgets/list.html', budgets=Budget.query.filter_by(user_id=current_user.id).all())

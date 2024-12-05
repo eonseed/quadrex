@@ -5,9 +5,24 @@
     {% endif %}
     <div class="form-control">
         <label class="label">
+            <span class="label-text">Year</span>
+        </label>
+        <select name="year" class="select select-bordered" required>
+            {% for year in range(2023, 2051) %}
+            <option value="{{ year }}" {% if budget and budget.month.year == year %}selected{% endif %}>{{ year }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-control">
+        <label class="label">
             <span class="label-text">Month</span>
         </label>
-        <input type="month" name="month" class="input input-bordered" value="{{ budget.month.strftime('%Y-%m') if budget else '' }}" required>
+        <select name="month" class="select select-bordered" required>
+            {% for month in range(1, 13) %}
+            <option value="{{ month }}" {% if budget and budget.month.month == month %}selected{% endif %}>{{ month|date:"F" }}</option>
+            {% endfor %}
+        </select>
     </div>
 
     <div class="form-control">
@@ -39,7 +54,7 @@
         <button type="button" class="btn btn-primary btn-sm" onclick="addCategoryAllocation()">Add Category</button>
     </div>
 
-    <div class="form-control mt-6">
+    <div class="form-control mt-6 flex justify-between">
         <button type="submit" class="btn btn-primary">Save Budget</button>
         <button type="button" class="btn btn-ghost" onclick="document.getElementById('budget-modal').close()">Cancel</button>
     </div>

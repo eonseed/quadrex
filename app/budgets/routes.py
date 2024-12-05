@@ -47,18 +47,20 @@ def list_budgets():
 @login_required
 def add_budget():
     if request.method == 'POST':
-        month = datetime.strptime(request.form['month'], '%Y-%m')
+        year = int(request.form['year'])
+        month = int(request.form['month'])
+        month_date = datetime(year, month, 1)
         total_budget = float(request.form['total_budget'])
         
         # Check for overlapping budgets
-        existing_budget = Budget.query.filter_by(user_id=current_user.id, month=month).first()
+        existing_budget = Budget.query.filter_by(user_id=current_user.id, month=month_date).first()
         if existing_budget:
             flash('A budget for this month already exists.', 'error')
             return redirect(url_for('budgets.list_budgets'))
         
         budget = Budget(
             user_id=current_user.id,
-            month=month,
+            month=month_date,
             total_budget=total_budget
         )
         db.session.add(budget)

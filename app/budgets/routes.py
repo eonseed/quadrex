@@ -13,7 +13,7 @@ def dashboard():
     
     budget = Budget.query.filter_by(user_id=current_user.id, month=month_date).first()
     if not budget:
-        return render_template('budgets/dashboard.html', budget=None)
+        return render_template('budgets/dashboard.html', budget=None, datetime=datetime)
     
     total_spent = db.session.query(db.func.sum(Transaction.amount))\
         .filter_by(user_id=current_user.id, type='expense')\
@@ -31,7 +31,8 @@ def dashboard():
                            budget=budget, 
                            total_spent=total_spent, 
                            category_spending=category_spending,
-                           category_allocations=category_allocations)
+                           category_allocations=category_allocations,
+                           datetime=datetime)
 
 @bp.route('/list')
 @login_required

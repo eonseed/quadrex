@@ -118,4 +118,4 @@ class CategoryAllocation(db.Model):
     budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     percentage = db.Column(db.Float, nullable=False)
-    budget = db.relationship('Budget', backref='category_allocations')
+    category = db.relationship('Category')

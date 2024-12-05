@@ -77,7 +77,7 @@ def add_budget():
         
         db.session.commit()
         flash('Budget added successfully', 'success')
-        return redirect(url_for('budgets.list_budgets'))
+        return render_template('budgets/list.html', budgets=Budget.query.filter_by(user_id=current_user.id).all())
     
     categories = Category.query.filter_by(user_id=current_user.id).all()
     return render_template('budgets/_form.html', categories=categories, budget=None)
@@ -105,7 +105,7 @@ def edit_budget(id):
         
         db.session.commit()
         flash('Budget updated successfully', 'success')
-        return redirect(url_for('budgets.list_budgets'))
+        return render_template('budgets/list.html', budgets=Budget.query.filter_by(user_id=current_user.id).all())
     
     categories = Category.query.filter_by(user_id=current_user.id).all()
     return render_template('budgets/_form.html', budget=budget, categories=categories)
@@ -117,4 +117,4 @@ def delete_budget(id):
     db.session.delete(budget)
     db.session.commit()
     flash('Budget deleted successfully', 'success')
-    return redirect(url_for('budgets.list_budgets'))
+    return render_template('budgets/list.html', budgets=Budget.query.filter_by(user_id=current_user.id).all())

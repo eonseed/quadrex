@@ -8,12 +8,14 @@
     <button class="btn btn-primary" hx-get="{{ url_for('budgets.add_budget') }}" hx-target="#budget-modal" hx-trigger="click">Add Budget</button>
 </div>
 
+{% if budgets %}
 <div class="overflow-x-auto">
     <table class="table table-zebra w-full">
         <thead>
             <tr>
                 <th>Month</th>
                 <th>Total Budget</th>
+                <th>Category Allocations</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -23,14 +25,25 @@
                 <td>{{ budget.month.strftime('%B %Y') }}</td>
                 <td>{{ "${:,.2f}".format(budget.total_budget) }}</td>
                 <td>
+                    {% for allocation in budget.category_allocations %}
+                        <div>{{ allocation.category.name }}: {{ allocation.percentage }}%</div>
+                    {% endfor %}
+                </td>
+                <td>
                     <button class="btn btn-sm btn-warning" hx-get="{{ url_for('budgets.edit_budget', id=budget.id) }}" hx-target="#budget-modal" hx-trigger="click">Edit</button>
                     <button class="btn btn-sm btn-error" hx-delete="{{ url_for('budgets.delete_budget', id=budget.id) }}" hx-target="this" hx-confirm="Are you sure you want to delete this budget?">Delete</button>
+                    <a href="{{ url_for('budgets.dashboard', month=budget.month.strftime('%Y-%m')) }}" class="btn btn-sm btn-info">Dashboard</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+{% else %}
+<div class="alert alert-warning">
+    No budgets defined. Please add a budget.
+</div>
+{% endif %}
 
 <!-- Budget Modal -->
 <dialog id="budget-modal" class="modal">

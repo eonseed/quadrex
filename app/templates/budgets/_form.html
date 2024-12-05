@@ -1,16 +1,20 @@
-<form method="POST" action="{{ url_for('budgets.add_budget') }}">
+<form method="POST" action="{{ url_for('budgets.add_budget' if not budget else 'budgets.edit_budget', id=budget.id if budget else None) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if budget %}
+    <input type="hidden" name="budget_id" value="{{ budget.id }}">
+    {% endif %}
     <div class="form-control">
         <label class="label">
             <span class="label-text">Month</span>
         </label>
-        <input type="month" name="month" class="input input-bordered" required>
+        <input type="month" name="month" class="input input-bordered" value="{{ budget.month.strftime('%Y-%m') if budget else '' }}" required>
     </div>
 
     <div class="form-control">
         <label class="label">
             <span class="label-text">Total Budget</span>
         </label>
-        <input type="number" name="total_budget" class="input input-bordered" required>
+        <input type="number" name="total_budget" class="input input-bordered" value="{{ budget.total_budget if budget else '' }}" required>
     </div>
 
     <div class="form-control">
@@ -18,15 +22,17 @@
             <span class="label-text">Category Allocations (Optional)</span>
         </label>
         <div id="category-allocations">
+            {% for allocation in budget.category_allocations if budget else [] %}
             <div class="flex items-center gap-2 mb-2">
                 <select name="category_allocations[][category_id]" class="select select-bordered">
                     {% for category in categories %}
-                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        <option value="{{ category.id }}" {% if allocation.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
                     {% endfor %}
                 </select>
-                <input type="number" name="category_allocations[][percentage]" class="input input-bordered" placeholder="Percentage" min="0" max="100">
+                <input type="number" name="category_allocations[][percentage]" class="input input-bordered" placeholder="Percentage" min="0" max="100" value="{{ allocation.percentage }}">
                 <button type="button" class="btn btn-error btn-sm" onclick="removeCategoryAllocation(this)">Remove</button>
             </div>
+            {% endfor %}
         </div>
         <button type="button" class="btn btn-primary btn-sm" onclick="addCategoryAllocation()">Add Category</button>
     </div>

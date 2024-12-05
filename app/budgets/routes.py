@@ -1,7 +1,7 @@
 from flask import render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from app import db
-from app.models import Budget, CategoryAllocation, Transaction
+from app.models import Budget, CategoryAllocation, Transaction, Category
 from app.budgets import bp
 from datetime import datetime
 
@@ -31,12 +31,16 @@ def dashboard():
     return render_template('budgets/dashboard.html', 
                            budget=budget, 
                            total_spent=total_spent, 
-                           category_spending=category_spending)
+                           category_spending=category_spending,
+                           category_allocations=category_allocations)
 
 @bp.route('/list')
 @login_required
 def list_budgets():
     budgets = Budget.query.filter_by(user_id=current_user.id).all()
+    if not budgets:
+        flash('No budgets defined. Please add a budget.', 'info')
+        return render_template('budgets/list.html', budgets=budgets)
     return render_template('budgets/list.html', budgets=budgets)
 
 @bp.route('/add', methods=['GET', 'POST'])
@@ -61,10 +65,12 @@ def add_budget():
         db.session.commit()
         
         # Add category allocations
-        for category_id, percentage in request.form.getlist('category_allocations'):
+        for allocation in request.form.getlist('category_allocations[][category_id]'):
+            category_id = allocation
+            percentage = request.form.getlist('category_allocations[][percentage]')[request.form.getlist('category_allocations[][category_id]').index(allocation)]
             allocation = CategoryAllocation(
                 budget_id=budget.id,
-                category_id=category_id,
+                category_id=int(category_id),
                 percentage=float(percentage)
             )
             db.session.add(allocation)
@@ -73,7 +79,8 @@ def add_budget():
         flash('Budget added successfully', 'success')
         return redirect(url_for('budgets.list_budgets'))
     
-    return render_template('budgets/_form.html')
+    categories = Category.query.filter_by(user_id=current_user.id).all()
+    return render_template('budgets/_form.html', categories=categories)
 
 @bp.route('/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -86,10 +93,12 @@ def edit_budget(id):
         
         # Update category allocations
         CategoryAllocation.query.filter_by(budget_id=budget.id).delete()
-        for category_id, percentage in request.form.getlist('category_allocations'):
+        for allocation in request.form.getlist('category_allocations[][category_id]'):
+            category_id = allocation
+            percentage = request.form.getlist('category_allocations[][percentage]')[request.form.getlist('category_allocations[][category_id]').index(allocation)]
             allocation = CategoryAllocation(
                 budget_id=budget.id,
-                category_id=category_id,
+                category_id=int(category_id),
                 percentage=float(percentage)
             )
             db.session.add(allocation)
@@ -98,7 +107,8 @@ def edit_budget(id):
         flash('Budget updated successfully', 'success')
         return redirect(url_for('budgets.list_budgets'))
     
-    return render_template('budgets/_form.html', budget=budget)
+    categories = Category.query.filter_by(user_id=current_user.id).all()
+    return render_template('budgets/_form.html', budget=budget, categories=categories)
 
 @bp.route('/<int:id>/delete', methods=['DELETE'])
 @login_required

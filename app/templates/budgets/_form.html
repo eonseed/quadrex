@@ -1,4 +1,4 @@
-<form method="POST" action="{{ url_for('budgets.add_budget' if not budget else 'budgets.edit_budget', id=budget.id if budget else None) }}">
+<form method="POST" hx-post="{{ url_for('budgets.add_budget' if not budget else 'budgets.edit_budget', id=budget.id if budget else None) }}" hx-target="#budget-form-content" hx-swap="innerHTML">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     {% if budget %}
     <input type="hidden" name="budget_id" value="{{ budget.id }}">
@@ -22,7 +22,7 @@
             <span class="label-text">Category Allocations (Optional)</span>
         </label>
         <div id="category-allocations">
-            {% for allocation in budget.category_allocations if budget else [] %}
+            {% for allocation in budget.category_allocations %}
             <div class="flex items-center gap-2 mb-2">
                 <select name="category_allocations[][category_id]" class="select select-bordered">
                     {% for category in categories %}

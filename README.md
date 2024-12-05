@@ -37,6 +37,12 @@ The "-rex" suffix adds a sense of power and mastery, suggesting that users can t
   - Beautiful components with DaisyUI
   - Dark mode support
 
+- 📅 Monthly Budget Management
+  - User-specific monthly budgets
+  - Optional category allocations
+  - Track spending against budgets
+  - Notifications for budget exceedances
+
 ## Tech Stack
 
 - **Backend**
@@ -67,6 +73,9 @@ quadrex/
 │   ├── transactions/       # Transactions blueprint
 │   │   ├── __init__.py
 │   │   └── routes.py
+│   ├── budgets/            # Budgets blueprint
+│   │   ├── __init__.py
+│   │   └── routes.py
 │   ├── main/              # Main blueprint
 │   │   ├── __init__.py
 │   │   └── routes.py
@@ -74,6 +83,7 @@ quadrex/
 │       ├── auth/
 │       ├── categories/
 │       ├── transactions/
+│       ├── budgets/
 │       ├── base.html
 │       └── index.html
 ├── instance/              # Instance-specific files
@@ -169,6 +179,25 @@ To build the Sphinx documentation:
     ```
 
     The documentation will be available in the `_build/html` directory.
+
+## Monthly Budget Management
+
+### Setting Up Monthly Budgets
+
+1. Navigate to the "Budgets" page from the left sidebar.
+2. Click on the "Add Budget" button.
+3. Fill in the form with the month, total budget, and optional category allocations.
+4. Click "Save Budget" to create the budget.
+
+### Tracking Spending
+
+1. Navigate to the "Budgets" page.
+2. Select the month to view the budget details.
+3. The dashboard will show total spending vs. the monthly budget and spending in each category vs. its allocated percentage.
+
+### Notifications
+
+- Notifications will be provided when spending exceeds the total budget or allocated percentages.
 
 ## Security
 

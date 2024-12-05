@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Budget Dashboard{% endblock %}
+
+{% block app_content %}
+<div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold">Budget Dashboard</h1>
+    <form method="GET" action="{{ url_for('budgets.dashboard') }}">
+        <input type="month" name="month" value="{{ request.args.get('month', now().strftime('%Y-%m')) }}" class="input input-bordered">
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+</div>
+
+{% if budget %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Total Budget</h2>
+            <p class="text-2xl font-mono">{{ "${:,.2f}".format(budget.total_budget) }}</p>
+            <div class="mt-4">
+                <div class="flex justify-between items-center">
+                    <span>Total Spent</span>
+                    <span>{{ "${:,.2f}".format(total_spent) }}</span>
+                </div>
+                <progress class="progress progress-primary w-full" value="{{ total_spent }}" max="{{ budget.total_budget }}"></progress>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Category Allocations</h2>
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes"></script>
+<script>
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const categoryChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for allocation in category_allocations %}"{{ allocation.category.name }}",{% endfor %}],
+            datasets: [{
+                data: [{% for allocation in category_allocations %}{{ allocation.percentage }},{% endfor %}],
+                backgroundColor: Chart.helpers.colorSchemes.brewer.Paired12
+            }]
+        },
+        options: {
+            plugins: {
+                colorschemes: {
+                    scheme: 'brewer.Paired12'
+                }
+            }
+        }
+    });
+</script>
+{% else %}
+<div class="alert alert-warning">
+    No budget found for the selected month.
+</div>
+{% endif %}
+{% endblock %}

@@ -15,6 +15,8 @@ class User(UserMixin, db.Model):
     passkey_sign_count = db.Column(db.Integer, default=0)
     transactions = db.relationship('Transaction', backref='user', lazy=True)
     categories = db.relationship('Category', backref='user', lazy=True)
+    budgets = db.relationship('Budget', backref='user', lazy=True)
+    category_allocations = db.relationship('CategoryAllocation', backref='user', lazy=True)
 
     __table_args__ = (
         UniqueConstraint('passkey_credential_id', name='uq_user_passkey_credential_id'),
@@ -103,3 +105,16 @@ class Transaction(db.Model):
             'type': self.type,
             'category': self.category.to_dict()
         }
+
+class Budget(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    month = db.Column(db.Date, nullable=False)
+    total_budget = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class CategoryAllocation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
+    percentage = db.Column(db.Float, nullable=False)

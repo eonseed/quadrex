@@ -4,6 +4,7 @@ from app.main import bp
 from app.models import Transaction, Category
 from app import db
 from app.auth.forms import LoginForm
+from app.budgets import bp as budgets_bp
 
 @bp.route('/')
 @bp.route('/index')

@@ -1,0 +1,60 @@
+<form method="POST" action="{{ url_for('budgets.add_budget') }}">
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">Month</span>
+        </label>
+        <input type="month" name="month" class="input input-bordered" required>
+    </div>
+
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">Total Budget</span>
+        </label>
+        <input type="number" name="total_budget" class="input input-bordered" required>
+    </div>
+
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">Category Allocations (Optional)</span>
+        </label>
+        <div id="category-allocations">
+            <div class="flex items-center gap-2 mb-2">
+                <select name="category_allocations[][category_id]" class="select select-bordered">
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="category_allocations[][percentage]" class="input input-bordered" placeholder="Percentage" min="0" max="100">
+                <button type="button" class="btn btn-error btn-sm" onclick="removeCategoryAllocation(this)">Remove</button>
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" onclick="addCategoryAllocation()">Add Category</button>
+    </div>
+
+    <div class="form-control mt-6">
+        <button type="submit" class="btn btn-primary">Save Budget</button>
+    </div>
+</form>
+
+<script>
+    function addCategoryAllocation() {
+        const container = document.getElementById('category-allocations');
+        const newAllocation = document.createElement('div');
+        newAllocation.className = 'flex items-center gap-2 mb-2';
+        newAllocation.innerHTML = `
+            <select name="category_allocations[][category_id]" class="select select-bordered">
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            <input type="number" name="category_allocations[][percentage]" class="input input-bordered" placeholder="Percentage" min="0" max="100">
+            <button type="button" class="btn btn-error btn-sm" onclick="removeCategoryAllocation(this)">Remove</button>
+        `;
+        container.appendChild(newAllocation);
+    }
+
+    function removeCategoryAllocation(button) {
+        const container = document.getElementById('category-allocations');
+        container.removeChild(button.parentElement);
+    }
+</script>

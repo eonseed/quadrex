@@ -186,6 +186,35 @@
         </div>
     </div>
 </div>
+
+<!-- Budget Summary -->
+<div class="grid grid-cols-1 gap-6">
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Budget Summary</h2>
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Allocated Percentage</th>
+                            <th>Spent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for allocation in category_allocations %}
+                        <tr>
+                            <td>{{ allocation.category.name }}</td>
+                            <td>{{ allocation.percentage }}%</td>
+                            <td>{{ "${:,.2f}".format(category_spending[allocation.category_id]) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% if not current_user.is_authenticated %}

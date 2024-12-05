@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Budgets{% endblock %}
+
+{% block app_content %}
+<div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold">Budgets</h1>
+    <button class="btn btn-primary" hx-get="{{ url_for('budgets.add_budget') }}" hx-target="#budget-modal" hx-trigger="click">Add Budget</button>
+</div>
+
+<div class="overflow-x-auto">
+    <table class="table table-zebra w-full">
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Total Budget</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for budget in budgets %}
+            <tr>
+                <td>{{ budget.month.strftime('%B %Y') }}</td>
+                <td>{{ "${:,.2f}".format(budget.total_budget) }}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" hx-get="{{ url_for('budgets.edit_budget', id=budget.id) }}" hx-target="#budget-modal" hx-trigger="click">Edit</button>
+                    <button class="btn btn-sm btn-error" hx-delete="{{ url_for('budgets.delete_budget', id=budget.id) }}" hx-target="this" hx-confirm="Are you sure you want to delete this budget?">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Budget Modal -->
+<dialog id="budget-modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Budget Form</h3>
+        <div id="budget-form-content">
+            <!-- Form content will be loaded here via HTMX -->
+        </div>
+        <div class="modal-action">
+            <button class="btn" onclick="budget-modal.close()">Close</button>
+        </div>
+    </div>
+</dialog>
+{% endblock %}

@@ -62,4 +62,7 @@
     No budget found for the selected month.
 </div>
 {% endif %}
+<div class="mt-4">
+    <a href="{{ url_for('budgets.list_budgets') }}" class="btn btn-secondary">Manage Budgets</a>
+</div>
 {% endblock %}

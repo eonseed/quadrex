@@ -13,8 +13,7 @@ def dashboard():
     
     budget = Budget.query.filter_by(user_id=current_user.id, month=month_date).first()
     if not budget:
-        flash('No budget found for the selected month.', 'error')
-        return redirect(url_for('budgets.list_budgets'))
+        return render_template('budgets/dashboard.html', budget=None)
     
     total_spent = db.session.query(db.func.sum(Transaction.amount))\
         .filter_by(user_id=current_user.id, type='expense')\

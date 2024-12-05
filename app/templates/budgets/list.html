@@ -40,8 +40,9 @@
     </table>
 </div>
 {% else %}
-<div class="alert alert-warning">
-    No budgets defined. Please add a budget.
+<div class="flex flex-col items-center">
+    <p class="mb-4">No budgets defined. Please add a budget.</p>
+    <a href="{{ url_for('budgets.add_budget') }}" class="btn btn-primary">Add Budget</a>
 </div>
 {% endif %}
 

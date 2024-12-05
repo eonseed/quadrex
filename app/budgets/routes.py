@@ -8,7 +8,7 @@ from datetime import datetime
 @bp.route('/')
 @login_required
 def dashboard():
-    month = request.args.get('month', datetime.utcnow().strftime('%Y-%m'))
+    month = request.args.get('month', None) or datetime.utcnow().strftime('%Y-%m')
     month_date = datetime.strptime(month, '%Y-%m')
     
     budget = Budget.query.filter_by(user_id=current_user.id, month=month_date).first()

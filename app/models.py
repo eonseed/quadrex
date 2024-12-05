@@ -16,7 +16,6 @@ class User(UserMixin, db.Model):
     transactions = db.relationship('Transaction', backref='user', lazy=True)
     categories = db.relationship('Category', backref='user', lazy=True)
     budgets = db.relationship('Budget', backref='user', lazy=True)
-    category_allocations = db.relationship('CategoryAllocation', backref='user', lazy=True)
 
     __table_args__ = (
         UniqueConstraint('passkey_credential_id', name='uq_user_passkey_credential_id'),

@@ -80,4 +80,10 @@
         const container = document.getElementById('category-allocations');
         container.removeChild(button.parentElement);
     }
+
+    // Alternative to strftime for jinja template
+    function strftime(date, format) {
+        const options = { month: 'long' };
+        return new Date(date).toLocaleDateString('en-US', options);
+    }
 </script>

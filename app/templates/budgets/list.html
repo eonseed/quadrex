@@ -62,7 +62,12 @@
 {% else %}
 <div class="flex flex-col items-center">
     <p class="mb-4">No budgets defined. Please add a budget.</p>
-    <a href="{{ url_for('budgets.add_budget') }}" class="btn btn-primary">Add Budget</a>
+    <button class="btn btn-primary gap-2" hx-get="{{ url_for('budgets.add_budget') }}" hx-target="#budget-modal" onclick="document.getElementById('budget-modal').showModal()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        Add Budget
+    </button>
 </div>
 {% endif %}
 

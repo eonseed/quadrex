@@ -19,11 +19,18 @@
         {% if messages %}
             <div class="fixed top-4 right-4 z-50">
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} mb-4 shadow-lg">
+                    <div class="alert alert-{{ category }} mb-4 shadow-lg toast">
                         <span>{{ message }}</span>
                     </div>
                 {% endfor %}
             </div>
+            <script>
+                setTimeout(() => {
+                    document.querySelectorAll('.toast').forEach(toast => {
+                        toast.remove();
+                    });
+                }, 3000);
+            </script>
         {% endif %}
     {% endwith %}
 

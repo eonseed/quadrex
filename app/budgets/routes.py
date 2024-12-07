@@ -1,4 +1,4 @@
-from flask import render_template, request, flash, redirect, url_for, make_response
+from flask import render_template, request, flash, redirect, url_for, make_response, current_app
 from flask_login import login_required, current_user
 from app import db
 from app.models import Budget, CategoryAllocation, Transaction, Category
@@ -8,10 +8,14 @@ from datetime import datetime
 @bp.route('/')
 @login_required
 def dashboard():
-    # Get the current month if not specified, defaulting to December 2024
-    default_month = '2024-12' if datetime.utcnow() > datetime(2024, 12, 1) else datetime.utcnow().strftime('%Y-%m')
+    current_time = datetime.now()
+    
+    # Get the current month if not specified
+    default_month = current_time.strftime('%Y-%m')
     month = request.args.get('month', default_month)
-    month_date = datetime.strptime(month, '%Y-%m')
+    month_date = datetime.strptime(month, '%Y-%m').date()
+    
+    current_app.logger.info(f"Looking for budget in dashboard with user_id={current_user.id} and month={month_date}")
     
     budget = Budget.query.filter_by(user_id=current_user.id, month=month_date).first()
     if not budget:
@@ -20,31 +24,55 @@ def dashboard():
                              datetime=datetime,
                              current_month=month)
     
+    current_app.logger.info(f"Found budget: {budget}")
+    
     # Calculate total spent for the month
+    month_start = month_date
+    month_end = datetime(month_date.year, month_date.month + 1, 1).date() if month_date.month < 12 \
+        else datetime(month_date.year + 1, 1, 1).date()
+    
+    current_app.logger.info(f"Calculating spending between {month_start} and {month_end}")
+    
     total_spent = db.session.query(db.func.sum(Transaction.amount))\
         .filter_by(user_id=current_user.id, type='expense')\
-        .filter(db.func.strftime('%Y-%m', Transaction.date) == month).scalar() or 0
+        .filter(Transaction.date >= month_start)\
+        .filter(Transaction.date < month_end)\
+        .scalar() or 0
+    
+    current_app.logger.info(f"Total spent: {total_spent}")
     
     # Get category allocations and spending
     category_allocations = CategoryAllocation.query.filter_by(budget_id=budget.id).all()
     allocated_categories = [alloc.category_id for alloc in category_allocations]
     category_spending = {}
     
+    current_app.logger.info(f"Found {len(category_allocations)} category allocations")
+    
     # Calculate spending for allocated categories
     for allocation in category_allocations:
         spent = db.session.query(db.func.sum(Transaction.amount))\
             .filter_by(user_id=current_user.id, category_id=allocation.category_id, type='expense')\
-            .filter(db.func.strftime('%Y-%m', Transaction.date) == month).scalar() or 0
+            .filter(Transaction.date >= month_start)\
+            .filter(Transaction.date < month_end)\
+            .scalar() or 0
         category_spending[allocation.category_id] = spent
+        current_app.logger.info(f"Category {allocation.category_id} spent: {spent}")
     
     # Calculate spending for unallocated categories as "Others"
-    others_spent = db.session.query(db.func.sum(Transaction.amount))\
-        .filter_by(user_id=current_user.id, type='expense')\
-        .filter(db.func.strftime('%Y-%m', Transaction.date) == month)\
-        .filter(~Transaction.category_id.in_(allocated_categories)).scalar() or 0
+    if allocated_categories:  # Only calculate others if there are allocated categories
+        others_spent = db.session.query(db.func.sum(Transaction.amount))\
+            .filter_by(user_id=current_user.id, type='expense')\
+            .filter(Transaction.date >= month_start)\
+            .filter(Transaction.date < month_end)\
+            .filter(~Transaction.category_id.in_(allocated_categories))\
+            .scalar() or 0
+        
+        if others_spent > 0:
+            category_spending['others'] = others_spent
+            current_app.logger.info(f"Others category spent: {others_spent}")
     
-    if others_spent > 0:
-        category_spending['others'] = others_spent
+    # Log final values being passed to template
+    current_app.logger.info(f"Rendering template with: budget={budget.total_budget}, spent={total_spent}")
     
     return render_template('budgets/dashboard.html', 
                          budget=budget, 

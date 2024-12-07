@@ -5,8 +5,8 @@
 {% block app_content %}
 <div class="flex justify-between items-center mb-4">
     <h1 class="text-2xl font-bold">Budget Dashboard</h1>
-    <form method="GET" action="{{ url_for('budgets.dashboard') }}">
-        <input type="month" name="month" value="{{ request.args.get('month', None) or datetime.utcnow().strftime('%Y-%m') }}" class="input input-bordered">
+    <form method="GET" action="{{ url_for('budgets.dashboard') }}" class="flex gap-2">
+        <input type="month" name="month" value="{{ current_month }}" class="input input-bordered">
         <button type="submit" class="btn btn-primary">Filter</button>
     </form>
 </div>
@@ -20,43 +20,99 @@
             <div class="mt-4">
                 <div class="flex justify-between items-center">
                     <span>Total Spent</span>
-                    <span>{{ "${:,.2f}".format(total_spent) }}</span>
+                    <span class="{% if total_spent > budget.total_budget %}text-error{% endif %}">
+                        {{ "${:,.2f}".format(total_spent) }}
+                    </span>
                 </div>
-                <progress class="progress progress-primary w-full" value="{{ total_spent }}" max="{{ budget.total_budget }}"></progress>
+                <div class="flex items-center gap-2">
+                    <progress class="progress {% if total_spent > budget.total_budget %}progress-error{% else %}progress-primary{% endif %} flex-grow" 
+                             value="{{ total_spent }}" max="{{ budget.total_budget }}"></progress>
+                    <span class="text-sm">{{ "{:.1f}%".format(total_spent / budget.total_budget * 100) }}</span>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-            <h2 class="card-title">Category Allocations</h2>
-            <canvas id="categoryChart"></canvas>
+            <h2 class="card-title">Category Allocations & Spending</h2>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Allocated</th>
+                            <th>Spent</th>
+                            <th>Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for allocation in category_allocations %}
+                        {% set allocated_amount = (budget.total_budget * allocation.percentage / 100) %}
+                        {% set spent = category_spending.get(allocation.category_id, 0) %}
+                        <tr>
+                            <td>{{ allocation.category.name }}</td>
+                            <td>{{ "${:,.2f}".format(allocated_amount) }}</td>
+                            <td class="{% if spent > allocated_amount %}text-error{% endif %}">
+                                {{ "${:,.2f}".format(spent) }}
+                            </td>
+                            <td class="w-1/3">
+                                <div class="flex items-center gap-2">
+                                    <progress class="progress {% if spent > allocated_amount %}progress-error{% else %}progress-primary{% endif %} flex-grow" 
+                                             value="{{ spent }}" max="{{ allocated_amount }}"></progress>
+                                    <span class="text-sm">{{ "{:.1f}%".format(spent / allocated_amount * 100 if allocated_amount > 0 else 0) }}</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% if category_spending.get('others', 0) > 0 %}
+                        <tr>
+                            <td>Others (Unallocated)</td>
+                            <td>-</td>
+                            <td class="text-warning">{{ "${:,.2f}".format(category_spending['others']) }}</td>
+                            <td>-</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            {% if category_allocations %}
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold mb-4">Category Distribution</h3>
+                <canvas id="categoryChart"></canvas>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
+{% if category_allocations %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes"></script>
 <script>
     const ctx = document.getElementById('categoryChart').getContext('2d');
     const categoryChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: [{% for allocation in category_allocations %}"{{ allocation.category.name }}",{% endfor %}],
+            labels: [{% for allocation in category_allocations %}"{{ allocation.category.name }}",{% endfor %}{% if category_spending.get('others', 0) > 0 %}"Others"{% endif %}],
             datasets: [{
-                data: [{% for allocation in category_allocations %}{{ allocation.percentage }},{% endfor %}],
-                backgroundColor: Chart.helpers.colorSchemes.brewer.Paired12
+                data: [{% for allocation in category_allocations %}{{ allocation.percentage }},{% endfor %}{% if category_spending.get('others', 0) > 0 %}{{ (category_spending['others'] / budget.total_budget * 100) | round(2) }}{% endif %}],
+                backgroundColor: [
+                    '#4338CA', '#3B82F6', '#06B6D4', '#10B981', '#84CC16', 
+                    '#EAB308', '#F97316', '#EF4444', '#EC4899', '#8B5CF6'
+                ]
             }]
         },
         options: {
+            responsive: true,
             plugins: {
-                colorschemes: {
-                    scheme: 'brewer.Paired12'
+                legend: {
+                    position: 'bottom'
                 }
             }
         }
     });
 </script>
+{% endif %}
 {% else %}
 <div class="flex flex-col items-center">
     <p class="mb-4">No budget found for the selected month.</p>

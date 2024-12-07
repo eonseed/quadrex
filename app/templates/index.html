@@ -188,36 +188,88 @@
 </div>
 
 <!-- Budget Summary -->
-<div class="grid grid-cols-1 gap-6">
+<div class="grid grid-cols-1 gap-6 mt-6">
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-            <h2 class="card-title">Budget Summary</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="card-title">Budget Summary ({{ current_month.strftime('%B %Y') }})</h2>
+                {% if total_budget > 0 %}
+                <div class="text-sm">
+                    <span class="font-semibold">Total Budget:</span> {{ "${:,.2f}".format(total_budget) }}
+                    <span class="font-semibold ml-4">Total Spent:</span> 
+                    <span class="{% if total_spent > total_budget %}text-error{% endif %}">
+                        {{ "${:,.2f}".format(total_spent) }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if total_budget > 0 %}
+            <div class="mb-4">
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Overall Progress</span>
+                    <span>{{ "{:.1f}%".format(total_spent / total_budget * 100) }}</span>
+                </div>
+                <progress class="progress {% if total_spent > total_budget %}progress-error{% else %}progress-primary{% endif %} w-full" 
+                         value="{{ total_spent }}" max="{{ total_budget }}"></progress>
+            </div>
+
             <div class="overflow-x-auto">
-                <table class="table table-zebra">
+                <table class="table table-zebra w-full">
                     <thead>
                         <tr>
                             <th>Category</th>
-                            <th>Allocated Percentage</th>
+                            <th>Allocated</th>
                             <th>Spent</th>
+                            <th>Progress</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for allocation in category_allocations %}
+                        {% set allocated_amount = (total_budget * allocation.percentage / 100) %}
+                        {% set spent = category_spending.get(allocation.category_id, 0) %}
                         <tr>
                             <td>{{ allocation.category.name }}</td>
-                            <td>{{ allocation.percentage }}%</td>
-                            <td>{{ "${:,.2f}".format(category_spending[allocation.category_id]) }}</td>
+                            <td>{{ "${:,.2f}".format(allocated_amount) }}</td>
+                            <td class="{% if spent > allocated_amount %}text-error{% endif %}">
+                                {{ "${:,.2f}".format(spent) }}
+                            </td>
+                            <td class="w-1/3">
+                                <div class="flex items-center gap-2">
+                                    <progress class="progress {% if spent > allocated_amount %}progress-error{% else %}progress-primary{% endif %} flex-grow" 
+                                             value="{{ spent }}" max="{{ allocated_amount }}"></progress>
+                                    <span class="text-sm">{{ "{:.1f}%".format(spent / allocated_amount * 100 if allocated_amount > 0 else 0) }}</span>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
+                        {% if category_spending.get('others', 0) > 0 %}
+                        <tr>
+                            <td>Others (Unallocated)</td>
+                            <td>-</td>
+                            <td class="text-warning">{{ "${:,.2f}".format(category_spending['others']) }}</td>
+                            <td>-</td>
+                        </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
+
+            <div class="card-actions justify-end mt-4">
+                <a href="{{ url_for('budgets.dashboard') }}" class="btn btn-primary">View Full Budget</a>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <p class="mb-4">No budget set for {{ current_month.strftime('%B %Y') }}</p>
+                <a href="{{ url_for('budgets.list_budgets') }}" class="btn btn-primary">Set Budget</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
 {% endblock %}
 
-{% if not current_user.is_authenticated %}
+{% block scripts %}
 <script>
 // Utility functions for base64url encoding/decoding
 function base64urlToBuffer(base64url) {
@@ -352,7 +404,7 @@ document.addEventListener('DOMContentLoaded', function() {
         emailInput.focus();
     });
 
-    // Handle submit button in modal
+    // Handle form submission
     passkeySubmit.addEventListener('click', function() {
         handlePasskeyAuth(emailInput.value);
     });
@@ -360,10 +412,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle enter key in email input
     emailInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
-            e.preventDefault();
             handlePasskeyAuth(emailInput.value);
         }
     });
 });
 </script>
-{% endif %}
+{% endblock %}

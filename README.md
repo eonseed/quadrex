@@ -99,10 +99,7 @@ quadrex/
 
 ## Installation
 
-<video controls width="600">
-  <source src="https://eonseed.github.io/quadrex/source/videos/quadrex_installation.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+https://eonseed.github.io/quadrex/source/videos/quadrex_installation.mp4
 
 1. Clone the repository:
 
@@ -142,10 +139,7 @@ quadrex/
 
     The application will be available at `http://localhost:5000`
 
-<video controls width="600">
-  <source src="https://eonseed.github.io/quadrex/source/videos/quadrex_web.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+https://eonseed.github.io/quadrex/source/videos/quadrex_web.mp4
 
 ## Development
 

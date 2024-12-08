@@ -99,7 +99,7 @@ quadrex/
 
 ## Installation
 
-https://eonseed.github.io/quadrex/source/videos/quadrex_installation.mp4
+https://github.com/user-attachments/assets/a707bccf-1c99-48cc-a3ad-4c35a1d8d75b
 
 1. Clone the repository:
 
@@ -139,7 +139,7 @@ https://eonseed.github.io/quadrex/source/videos/quadrex_installation.mp4
 
     The application will be available at `http://localhost:5000`
 
-https://eonseed.github.io/quadrex/source/videos/quadrex_web.mp4
+https://github.com/user-attachments/assets/55f0323f-8ee8-4281-9632-ff89f8ec6ee1
 
 ## Development
 

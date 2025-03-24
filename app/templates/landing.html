@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Welcome to Quadrex{% endblock %}
+{% block title %}Quadrex - Smart Personal Finance Tracker{% endblock %}
 
 {% block content %}
 {% if not current_user.is_authenticated %}
-<div class="min-h-screen">
-    <div class="navbar bg-base-100">
+<div class="min-h-screen bg-gradient-to-b from-base-100 to-base-200">
+    <!-- Navbar with logo and register button -->
+    <div class="navbar bg-base-100 shadow-sm">
         <div class="flex-1">
             <div class="flex items-center gap-2 px-4">
-                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shadow-md">
                     <svg class="w-6 h-6 text-primary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                     </svg>
@@ -20,179 +21,285 @@
             </div>
         </div>
         <div class="flex-none gap-2">
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Register</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm md:btn-md">Get Started</a>
+            <!-- Theme Toggle on Landing Page -->
+            <label class="swap swap-rotate ml-2">
+                <input type="checkbox" class="theme-toggle-checkbox" onclick="toggleTheme()" />
+                <svg class="swap-off w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/>
+                </svg>
+                <svg class="swap-on w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"/>
+                </svg>
+            </label>
         </div>
     </div>
 
-    <div class="hero min-h-[calc(100vh-4rem)] bg-base-200">
-        <div class="hero-content flex-col lg:flex-row-reverse gap-12 max-w-7xl">
-            <!-- Left Side: Features -->
-            <div class="text-center lg:text-left lg:w-1/2">
-                <h2 class="text-5xl font-bold font-display mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Master Your Finances Today!</h2>
-                <p class="py-6 text-lg leading-relaxed text-base-content/80">Quadrex is your personal finance companion for mastering the four pillars of financial management. Track expenses, analyze income, set budgets, and get insights with our powerful yet simple tools.</p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                    <!-- Track Expenses Card -->
-                    <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div class="card-body p-6">
-                            <div class="flex items-start gap-4">
-                                <div class="rounded-lg bg-primary/10 p-3" aria-hidden="true">
-                                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-lg mb-1">Track Expenses</h3>
-                                    <p class="text-base-content/70">Monitor your spending habits effortlessly with our intuitive tracking system</p>
-                                </div>
-                            </div>
-                        </div>
+    <!-- Main hero section -->
+    <div class="container mx-auto px-4 py-8 md:py-12">
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-16 items-center">
+            <!-- Left Side: Hero content and value proposition -->
+            <div class="lg:w-3/5 space-y-6">
+                <div class="space-y-4 text-center lg:text-left">
+                    <h2 class="text-4xl md:text-5xl font-bold font-display bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent animate-gradient">Take Control of Your Finances</h2>
+                    <p class="text-lg md:text-xl leading-relaxed text-base-content/80 max-w-2xl">
+                        Quadrex helps you master the four pillars of financial success: track expenses, analyze income, set budgets, and gain powerful insights—all in one intuitive dashboard.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                            Start for Free
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        <a href="#features" class="btn btn-outline">
+                            Learn More
+                        </a>
                     </div>
+                </div>
 
-                    <!-- Analyze Income Card -->
-                    <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div class="card-body p-6">
-                            <div class="flex items-start gap-4">
-                                <div class="rounded-lg bg-secondary/10 p-3" aria-hidden="true">
-                                    <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-lg mb-1">Analyze Income</h3>
-                                    <p class="text-base-content/70">Keep track of all your revenue sources with detailed analytics</p>
-                                </div>
-                            </div>
+                <!-- Key benefits -->
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8 max-w-3xl mx-auto lg:mx-0">
+                    <div class="stat bg-base-100 rounded-box shadow-sm p-4">
+                        <div class="stat-figure text-primary">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
                         </div>
+                        <div class="stat-title">Save More</div>
+                        <div class="stat-value text-primary text-2xl">30%</div>
                     </div>
-
-                    <!-- Set Budgets Card -->
-                    <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div class="card-body p-6">
-                            <div class="flex items-start gap-4">
-                                <div class="rounded-lg bg-accent/10 p-3" aria-hidden="true">
-                                    <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-lg mb-1">Set Budgets</h3>
-                                    <p class="text-base-content/70">Plan and stick to your financial goals with smart budgeting tools</p>
-                                </div>
-                            </div>
+                    <div class="stat bg-base-100 rounded-box shadow-sm p-4">
+                        <div class="stat-figure text-secondary">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
                         </div>
+                        <div class="stat-title">Financial Clarity</div>
+                        <div class="stat-value text-secondary text-2xl">100%</div>
                     </div>
-
-                    <!-- View Reports Card -->
-                    <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div class="card-body p-6">
-                            <div class="flex items-start gap-4">
-                                <div class="rounded-lg bg-success/10 p-3" aria-hidden="true">
-                                    <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-lg mb-1">View Reports</h3>
-                                    <p class="text-base-content/70">Get insights with beautiful charts and detailed analytics</p>
-                                </div>
-                            </div>
+                    <div class="stat bg-base-100 rounded-box shadow-sm p-4">
+                        <div class="stat-figure text-accent">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
                         </div>
+                        <div class="stat-title">Time Saved</div>
+                        <div class="stat-value text-accent text-2xl">5h/wk</div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Manage Budgets Card -->
-                    <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <div class="card-body p-6">
-                            <div class="flex items-start gap-4">
-                                <div class="rounded-lg bg-warning/10 p-3" aria-hidden="true">
-                                    <svg class="w-6 h-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18M9 3v18M9 9h6M9 15h6"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-lg mb-1">Manage Budgets</h3>
-                                    <p class="text-base-content/70">Set and track your monthly budgets with ease</p>
-                                </div>
+            <!-- Right Side: Sign-in card -->
+            <div class="lg:w-2/5">
+                <div class="card flex-shrink-0 w-full max-w-md shadow-2xl bg-base-100 border border-base-200">
+                    <div class="card-body p-6 md:p-8">
+                        <h2 class="card-title justify-center mb-4 text-xl font-bold">Sign In to Your Account</h2>
+
+                        <!-- Error Message -->
+                        <div id="error-message" role="alert" class="alert alert-error text-sm hidden"></div>
+
+                        <!-- Loading Indicator -->
+                        <div id="loading-indicator" class="flex justify-center py-4 hidden">
+                            <div class="loading loading-spinner loading-md"></div>
+                        </div>
+
+                        <!-- Passkey Form -->
+                        <form id="passkey-auth-form" class="mb-4 space-y-4">
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">Email (Optional)</span>
+                                </label>
+                                <input type="email" id="email" class="input input-bordered w-full" placeholder="Enter your email (optional)">
                             </div>
+                            <div class="form-control">
+                                <button id="submit-button" type="submit" class="btn btn-primary w-full">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                                    </svg>
+                                    Sign in with Passkey
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Traditional Login Form -->
+                        <div class="divider text-sm text-base-content/70">OR USE EMAIL & PASSWORD</div>
+
+                        <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-4">
+                            {{ form.hidden_tag() }}
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">Email</span>
+                                </label>
+                                {{ form.email(class="input input-bordered w-full", placeholder="Enter your email") }}
+                                {% for error in form.email.errors %}
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ error }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text">Password</span>
+                                </label>
+                                {{ form.password(class="input input-bordered w-full", placeholder="Enter your password") }}
+                                {% for error in form.password.errors %}
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ error }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-control">
+                                <label class="label cursor-pointer justify-start gap-2">
+                                    {{ form.remember_me(class="checkbox checkbox-primary") }}
+                                    <span class="label-text">Remember me</span>
+                                </label>
+                            </div>
+
+                            <div class="form-control">
+                                <button type="submit" class="btn btn-primary w-full">Sign In</button>
+                            </div>
+                        </form>
+
+                        <div class="divider"></div>
+
+                        <div class="text-center">
+                            <p class="text-base-content/70">Don't have an account?</p>
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-link">Create Account</a>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-                <div class="card-body">
-                    <h2 class="card-title justify-center mb-4">Sign In</h2>
+        </div>
+    </div>
 
-                    <!-- Error Message -->
-                    <div id="error-message" class="alert alert-error text-sm hidden"></div>
-
-                    <!-- Loading Indicator -->
-                    <div id="loading-indicator" class="loading loading-spinner loading-md hidden"></div>
-
-                    <!-- Passkey Form -->
-                    <form id="passkey-auth-form" class="mb-4">
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">Email (Optional)</span>
-                            </label>
-                            <input type="email" id="email" class="input input-bordered w-full" placeholder="Enter your email (optional)">
+    <!-- Features section -->
+    <div id="features" class="container mx-auto px-4 py-16 md:py-24">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">The Four Pillars of Financial Freedom</h2>
+            <p class="text-lg text-base-content/80 max-w-2xl mx-auto">Quadrex gives you the tools to master every aspect of your financial life in one intuitive dashboard.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Track Expenses Card -->
+            <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div class="card-body p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="rounded-lg bg-primary/10 p-3" aria-hidden="true">
+                            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                            </svg>
                         </div>
-                        <div class="form-control mt-6">
-                            <button id="submit-button" type="submit" class="btn btn-primary">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-                                </svg>
-                                Sign in with Passkey
-                            </button>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">Track Expenses</h3>
+                            <p class="text-base-content/70">Monitor your spending habits with our intuitive categorization system. See where your money goes with just a glance.</p>
                         </div>
-                    </form>
-
-                    <!-- Traditional Login Form -->
-                    <div class="divider">OR</div>
-
-                    <form method="POST" action="{{ url_for('auth.login') }}">
-                        {{ form.hidden_tag() }}
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">Email</span>
-                            </label>
-                            {{ form.email(class="input input-bordered w-full", placeholder="Enter your email") }}
-                            {% for error in form.email.errors %}
-                                <label class="label">
-                                    <span class="label-text-alt text-error">{{ error }}</span>
-                                </label>
-                            {% endfor %}
-                        </div>
-
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">Password</span>
-                            </label>
-                            {{ form.password(class="input input-bordered w-full", placeholder="Enter your password") }}
-                            {% for error in form.password.errors %}
-                                <label class="label">
-                                    <span class="label-text-alt text-error">{{ error }}</span>
-                                </label>
-                            {% endfor %}
-                        </div>
-
-                        <div class="form-control">
-                            <label class="label cursor-pointer justify-start gap-2">
-                                {{ form.remember_me(class="checkbox checkbox-primary") }}
-                                <span class="label-text">Remember me</span>
-                            </label>
-                        </div>
-
-                        <div class="form-control mt-6">
-                            <button type="submit" class="btn btn-primary">Sign In</button>
-                        </div>
-                    </form>
-
-                    <div class="divider"></div>
-
-                    <div class="text-center">
-                        <p class="text-base-content/70">Don't have an account?</p>
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-link">Create Account</a>
                     </div>
+                </div>
+            </div>
+
+            <!-- Analyze Income Card -->
+            <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div class="card-body p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="rounded-lg bg-secondary/10 p-3" aria-hidden="true">
+                            <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">Analyze Income</h3>
+                            <p class="text-base-content/70">Keep track of all your revenue sources with detailed analytics and visualizations that help you understand your earning patterns.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Set Budgets Card -->
+            <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div class="card-body p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="rounded-lg bg-accent/10 p-3" aria-hidden="true">
+                            <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">Set Budgets</h3>
+                            <p class="text-base-content/70">Plan and stick to your financial goals with customizable budgets. Get alerts when you're approaching your limits.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Reports Card -->
+            <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div class="card-body p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="rounded-lg bg-success/10 p-3" aria-hidden="true">
+                            <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">View Reports</h3>
+                            <p class="text-base-content/70">Get insights with beautiful charts and detailed analytics that help you make better financial decisions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Categories Card -->
+            <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div class="card-body p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="rounded-lg bg-warning/10 p-3" aria-hidden="true">
+                            <svg class="w-6 h-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18M9 3v18M9 9h6M9 15h6"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">Custom Categories</h3>
+                            <p class="text-base-content/70">Create your own expense categories or use our thoughtful defaults to organize your financial life.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Card -->
+            <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div class="card-body p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="rounded-lg bg-info/10 p-3" aria-hidden="true">
+                            <svg class="w-6 h-6 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2">Bank-Level Security</h3>
+                            <p class="text-base-content/70">Your data is protected with cutting-edge security including passkey authentication and encryption.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer call to action -->
+    <div class="container mx-auto px-4 py-16 text-center">
+        <div class="card bg-base-100 shadow-xl border border-base-200 max-w-3xl mx-auto">
+            <div class="card-body p-8 md:p-12">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4">Ready to Take Control of Your Finances?</h2>
+                <p class="text-base-content/80 mb-8">Join thousands of users who have transformed their financial lives with Quadrex.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                        Get Started for Free
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
                 </div>
             </div>
         </div>
@@ -205,4 +312,16 @@
     {{ super() }}
     <script type="module" src="{{ url_for('static', filename='js/webauthn-utils.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='js/passkey-auth.js') }}"></script>
+    <!-- Add animation class for gradient text -->
+    <style>
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animate-gradient {
+            background-size: 200% 200%;
+            animation: gradient 6s ease infinite;
+        }
+    </style>
 {% endblock %}

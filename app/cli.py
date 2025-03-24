@@ -1,5 +1,7 @@
 import click
 from flask.cli import with_appcontext
+import subprocess
+import os
 from app import db
 from app.models import Category, User, Transaction
 from app.default_categories import DEFAULT_CATEGORIES
@@ -7,6 +9,7 @@ from app.default_categories import DEFAULT_CATEGORIES
 def register_commands(app):
     app.cli.add_command(init_categories)
     app.cli.add_command(migrate_categories)
+    app.cli.add_command(build_css)
 
 @click.command('init-categories')
 @with_appcontext
@@ -105,3 +108,27 @@ def migrate_categories():
         db.session.rollback()
         click.echo(f'Error during migration: {str(e)}', err=True)
         raise e
+
+@click.command('build-css')
+@with_appcontext
+def build_css():
+    """Build CSS using Tailwind CSS CLI."""
+    click.echo('Building CSS with Tailwind CSS...')
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    input_css = os.path.join(project_root, 'app', 'static', 'css', 'main.css')
+    output_css = os.path.join(project_root, 'app', 'static', 'css', 'app.css')
+    
+    try:
+        result = subprocess.run(
+            ["bun", "tailwindcss", "-i", input_css, "-o", output_css],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        click.echo('CSS built successfully!')
+        click.echo(result.stdout)
+    except subprocess.CalledProcessError as e:
+        click.echo(f'Error building CSS: {e}', err=True)
+        click.echo(e.stderr, err=True)
+    except Exception as e:
+        click.echo(f'Unexpected error: {str(e)}', err=True)

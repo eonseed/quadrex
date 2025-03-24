@@ -1,17 +1,52 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="quadrex-dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{% block title %}{% endblock %} - Quadrex</title>
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet" type="text/css" />
     <script>
         document.body.addEventListener('htmx:configRequest', function(evt) {
             evt.detail.headers['X-CSRFToken'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         });
+
+        // Theme switcher functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for saved theme preference or use system preference
+            const savedTheme = localStorage.getItem('quadrex-theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } else {
+                // Use system preference as default if no saved preference
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.setAttribute('data-theme', prefersDark ? 'quadrex-dark' : 'quadrex-light');
+            }
+            
+            // Update toggle state based on current theme
+            updateThemeToggleState();
+        });
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'quadrex-dark' ? 'quadrex-light' : 'quadrex-dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('quadrex-theme', newTheme);
+            
+            updateThemeToggleState();
+        }
+
+        function updateThemeToggleState() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const isDark = currentTheme === 'quadrex-dark';
+            
+            // Update all theme toggles on the page
+            document.querySelectorAll('.theme-toggle-checkbox').forEach(toggle => {
+                toggle.checked = isDark;
+            });
+        }
     </script>
 </head>
 <body class="min-h-screen bg-base-200">
@@ -19,14 +54,14 @@
         {% if messages %}
             <div class="fixed top-4 right-4 z-50">
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} mb-4 shadow-lg toast">
+                    <div role="alert" class="alert alert-{{ category }} mb-4 shadow-lg">
                         <span>{{ message }}</span>
                     </div>
                 {% endfor %}
             </div>
             <script>
                 setTimeout(() => {
-                    document.querySelectorAll('.toast').forEach(toast => {
+                    document.querySelectorAll('.alert').forEach(toast => {
                         toast.remove();
                     });
                 }, 3000);
@@ -51,6 +86,19 @@
                 </div>
                 <div class="flex-1">
                     <a class="text-xl font-bold">Quadrex</a>
+                </div>
+                
+                <!-- Theme toggle for mobile view -->
+                <div class="flex-none">
+                    <label class="swap swap-rotate">
+                        <input type="checkbox" class="theme-toggle-checkbox" onclick="toggleTheme()" />
+                        <svg class="swap-off w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/>
+                        </svg>
+                        <svg class="swap-on w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"/>
+                        </svg>
+                    </label>
                 </div>
             </div>
 
@@ -143,6 +191,22 @@
 
                 <div class="mt-auto">
                     <div class="divider"></div>
+                    
+                    <!-- Theme Toggle -->
+                    <div class="flex items-center justify-between p-4">
+                        <span class="text-sm">Theme</span>
+                        <label class="swap swap-rotate">
+                            <input type="checkbox" class="theme-toggle-checkbox" onclick="toggleTheme()" />
+                            <!-- sun icon -->
+                            <svg class="swap-off w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/>
+                            </svg>
+                            <!-- moon icon -->
+                            <svg class="swap-on w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"/>
+                            </svg>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>

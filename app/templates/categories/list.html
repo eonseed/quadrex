@@ -74,7 +74,7 @@
         <!-- Content will be loaded here -->
     </div>
     <form method="dialog" class="modal-backdrop">
-        <button onclick="closeModal()">close</button>
+        <button>close</button>
     </form>
 </dialog>
 
@@ -88,7 +88,7 @@
     }
 
     // Close modal when clicking outside
-    window.modal.addEventListener('click', function(event) {
+    modal.addEventListener('click', function(event) {
         if (event.target === this) {
             closeModal();
         }
@@ -96,7 +96,7 @@
 
     // Close modal when pressing ESC key
     document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape' && window.modal.open) {
+        if (event.key === 'Escape' && modal.open) {
             closeModal();
         }
     });

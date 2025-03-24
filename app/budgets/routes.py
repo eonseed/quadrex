@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from app import db
 from app.models import Budget, CategoryAllocation, Transaction, Category
 from app.budgets import bp
-from datetime import datetime
+from datetime import datetime, date
 
 @bp.route('/')
 @login_required
@@ -13,7 +13,14 @@ def dashboard():
     # Get the current month if not specified
     default_month = current_time.strftime('%Y-%m')
     month = request.args.get('month', default_month)
-    month_date = datetime.strptime(month, '%Y-%m').date()
+    
+    try:
+        month_date = datetime.strptime(month, '%Y-%m').date()
+    except ValueError:
+        # If invalid format, default to current month
+        current_app.logger.warning(f"Invalid month format: {month}, defaulting to current month")
+        month_date = date(current_time.year, current_time.month, 1)
+        month = default_month
     
     current_app.logger.info(f"Looking for budget in dashboard with user_id={current_user.id} and month={month_date}")
     
@@ -80,7 +87,8 @@ def dashboard():
                          category_spending=category_spending,
                          category_allocations=category_allocations,
                          datetime=datetime,
-                         current_month=month)
+                         current_month=month,
+                         month_date=month_date)
 
 @bp.route('/list')
 @login_required

@@ -22,7 +22,7 @@ def index():
             .filter_by(user_id=current_user.id, type='expense').scalar() or 0
         
         # Calculate category allocations and spending for current month
-        current_time = datetime.strptime('2024-12-07T16:58:53+08:00', '%Y-%m-%dT%H:%M:%S%z')
+        current_time = datetime.now()
         month_date = datetime(current_time.year, current_time.month, 1).date()  # First day of current month
         
         current_app.logger.info(f"Looking for budget with user_id={current_user.id} and month={month_date}")
@@ -32,6 +32,14 @@ def index():
             user_id=current_user.id,
             month=month_date
         ).first()
+        
+        # If no budget exists for current month, try to find the most recent budget
+        if not budget:
+            budget = Budget.query.filter_by(user_id=current_user.id)\
+                .order_by(Budget.month.desc()).first()
+            if budget:
+                month_date = budget.month
+                current_app.logger.info(f"No budget for current month, using most recent: {month_date}")
         
         current_app.logger.info(f"Found budget: {budget}")
         if budget:

@@ -6,7 +6,7 @@
 <div class="flex justify-between items-center mb-4">
     <h1 class="text-2xl font-bold">Budget Dashboard</h1>
     <form method="GET" action="{{ url_for('budgets.dashboard') }}" class="flex gap-2">
-        <input type="month" name="month" value="{{ current_month }}" class="input input-bordered">
+        <input type="month" name="month" value="{{ current_month }}" class="input input-bordered" aria-label="Select month and year">
         <button type="submit" class="btn btn-primary">Filter</button>
     </form>
 </div>
@@ -15,7 +15,7 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-            <h2 class="card-title">Total Budget</h2>
+            <h2 class="card-title">Total Budget for {{ month_date.strftime('%B %Y') if month_date is defined else datetime.strptime(current_month, '%Y-%m').strftime('%B %Y') }}</h2>
             <p class="text-2xl font-mono">{{ "${:,.2f}".format(budget.total_budget) }}</p>
             <div class="mt-4">
                 <div class="flex justify-between items-center">
